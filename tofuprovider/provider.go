@@ -1,15 +1,3 @@
-// Package tofuprovider is a low-level client library for the OpenTofu provider
-// plugin API, allowing Go programs to call into OpenTofu provider plugins
-// without using code from OpenTofu itself.
-//
-// The scope of this library is intentionally limited: it focuses only on
-// abstracting away the protocol major version negotiation so that caller
-// code does not need to be duplicated to support multiple protocol versions.
-// Otherwise, the API closely matches how the underlying protocol is designed
-// with as little additional abstraction as possible.
-//
-// This package currently implements clients for protocol major versions 5 and
-// 6.
 package tofuprovider
 
 import (
@@ -18,6 +6,10 @@ import (
 	"os/exec"
 
 	"go.rpcplugin.org/rpcplugin"
+
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf5"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf6"
 
 	// The following is required to force google.golang.org/genproto to
 	// appear in our go.mod, which is in turn needed to resolve ambiguous
@@ -30,6 +22,11 @@ import (
 // Provider represents a running provider plugin.
 type Provider interface {
 	Close() error
+
+	// This interface cannot be implemented outside of this module, because
+	// future versions might extend the interface to include new protocol
+	// features.
+	common.Sealed
 }
 
 // Start executes the given command line as an OpenTofu provider plugin
@@ -51,27 +48,44 @@ func Start(ctx context.Context, exe string, args ...string) (Provider, error) {
 			CookieKey:   "TF_PLUGIN_MAGIC_COOKIE",
 			CookieValue: "d602bf8f470bc67ca7faa0386276bbdd4330efaf76d1a219cb4d6991ca9872b2",
 		},
-		Cmd:           exec.Command(exe, args...),
+		Cmd: exec.Command(exe, args...),
 		ProtoVersions: map[int]rpcplugin.ClientVersion{
-			//5: protocol5.PluginClient{},
-			//6: protocol6.PluginClient{},
+			5: tf5.PluginClient{}, // clientProxy is tfplugin5.ProviderClient
+			6: tf6.PluginClient{}, // clientProxy is tfplugin6.ProviderClient
 		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to launch provider plugin: %s", err)
 	}
 
-	protoVersion, _ /*clientProxy*/, err := plugin.Client(ctx)
+	// If plugin init and handshake is successful then clientProxy is
+	// of the type described in the comments associated with the
+	// matching rpcplugin.ClientConfig.ProtoVersions element above,
+	// for returned protoVersion.
+	protoVersion, clientProxy, err := plugin.Client(ctx)
 	if err != nil {
 		plugin.Close()
 		return nil, fmt.Errorf("failed to create plugin client: %s", err)
 	}
 
+	var ret Provider
 	switch protoVersion {
-	//case 5:
-	//	return protocol5.NewProvider(ctx, plugin, clientProxy)
-	//case 6:
-	//	return protocol6.NewProvider(ctx, plugin, clientProxy)
+	case 5:
+		// These extra steps are to avoid returning a "typed nil" if
+		// NewProvider returns (*tf6.Provider)(nil).
+		impl, err := tf5.NewProvider(ctx, plugin, clientProxy)
+		if impl != nil {
+			ret = impl
+		}
+		return ret, err
+	case 6:
+		// These extra steps are to avoid returning a "typed nil" if
+		// NewProvider returns (*tf6.Provider)(nil).
+		impl, err := tf6.NewProvider(ctx, plugin, clientProxy)
+		if impl != nil {
+			ret = impl
+		}
+		return ret, err
 	default:
 		// Should not be possible to get here because the above cases cover
 		// all of the versions we listed in ProtoVersions; rpcplugin bug?
