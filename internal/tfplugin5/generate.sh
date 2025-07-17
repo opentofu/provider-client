@@ -6,7 +6,7 @@
 #
 # To adopt a new minor version of plugin protocol 5:
 # - copy the new tfplugin5.proto from the commit associated with latest tagged
-#   release of Terraform CLI over the top of this directory's tfplugin5.proto.
+#   release of OpenTofu over the top of this directory's tfplugin5.proto.
 # - Run this generate.sh script to in turn run protoc to regenerate
 #   tfplugin5.pb.go.
 #
@@ -24,4 +24,4 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 cd "$DIR"
 
-protoc -I ./ tfplugin5.proto --go_out=paths=source_relative,plugins=grpc:./
+protoc -I ./ tfplugin5.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative
