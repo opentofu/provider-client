@@ -17,7 +17,7 @@ func main() {
 	args = args[1:]
 
 	ctx := context.Background()
-	provider, err := tofuprovider.Start(ctx, args[0], args[1:]...)
+	provider, err := tofuprovider.StartGRPCPlugin(ctx, args[0], args[1:]...)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
