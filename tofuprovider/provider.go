@@ -10,6 +10,7 @@ import (
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf5"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf6"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/providertrace"
 
 	// The following is required to force google.golang.org/genproto to
 	// appear in our go.mod, which is in turn needed to resolve ambiguous
@@ -43,12 +44,15 @@ type Provider interface {
 // object when you no longer need the provider, so that the child process
 // can be terminated.
 func Start(ctx context.Context, exe string, args ...string) (Provider, error) {
+	tracer := providertrace.TracerFromContext(ctx)
+
 	plugin, err := rpcplugin.New(ctx, &rpcplugin.ClientConfig{
 		Handshake: rpcplugin.HandshakeConfig{
 			CookieKey:   "TF_PLUGIN_MAGIC_COOKIE",
 			CookieValue: "d602bf8f470bc67ca7faa0386276bbdd4330efaf76d1a219cb4d6991ca9872b2",
 		},
-		Cmd: exec.Command(exe, args...),
+		Cmd:    exec.Command(exe, args...),
+		Stderr: tracer.ChildStderr,
 		ProtoVersions: map[int]rpcplugin.ClientVersion{
 			5: tf5.PluginClient{}, // clientProxy is tfplugin5.ProviderClient
 			6: tf6.PluginClient{}, // clientProxy is tfplugin6.ProviderClient
