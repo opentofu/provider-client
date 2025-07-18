@@ -22,6 +22,25 @@ import (
 
 // Provider represents a running provider plugin.
 type Provider interface {
+	// StopProvider asks the provider to gracefully abort any active
+	// calls that are running concurrently, causing them to return
+	// with a cancellation-related error as soon as it's safe to do so.
+	//
+	// Not all providers actually support cancellation for all of their
+	// resource types, so a caller must not assume that concurrent calls
+	// definitly will return promptly after calling this method.
+	//
+	// It's safe to call StopProvider multiple times on the same provider,
+	// although for most providers the additional calls have no additional
+	// effect.
+	StopProvider(ctx context.Context) error
+
+	// Close terminates the child process representing the provider.
+	//
+	// After calling this function, the client object enters an invalid state
+	// where all other methods have unspecified behavior. However, it's
+	// acceptable to call close multiple times, with subsequent calls having
+	// no effect.
 	Close() error
 
 	// This interface cannot be implemented outside of this module, because
