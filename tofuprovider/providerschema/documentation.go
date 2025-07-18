@@ -5,10 +5,12 @@ package providerschema
 type DocStringFormat int
 
 const (
+	DocStringUnsupported DocStringFormat = 0
+
 	// DocStringPlain means that the associated documentation string is intended
 	// as plain text without any markup, although it may still contain
 	// meaningful newline characters separating multiple paragraphs.
-	DocStringPlain DocStringFormat = 0
+	DocStringPlain DocStringFormat = 1
 
 	// DocStringMarkdown means that the associated documentation contains
 	// Markdown-like formatting markup.
@@ -17,5 +19,5 @@ const (
 	// so the string may contain markdown extensions that only apply to
 	// certain implementations. It's the caller's responsibility to somehow
 	// deal with unsupported or invalid Markdown text.
-	DocStringMarkdown DocStringFormat = 1
+	DocStringMarkdown DocStringFormat = 2
 )

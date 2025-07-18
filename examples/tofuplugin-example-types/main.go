@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"maps"
 	"os"
 
 	"github.com/apparentlymart/opentofu-providers/tofuprovider"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
 )
 
 func main() {
@@ -24,5 +26,32 @@ func main() {
 	}
 	defer provider.Close()
 
-	// TODO: Fetch and print schema
+	resp, err := provider.GetProviderSchema(ctx, &providerops.GetProviderSchemaRequest{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Provider schema request failed: %s\n", err)
+		os.Exit(1)
+	}
+
+	schema := resp.ProviderSchema()
+	managedResourceTypes := maps.Collect(schema.ManagedResourceTypeSchemas())
+	dataResourceTypes := maps.Collect(schema.DataResourceTypeSchemas())
+	ephemeralResourceTypes := maps.Collect(schema.EphemeralResourceTypeSchemas())
+	functions := maps.Collect(schema.FunctionSignatures())
+
+	printList("Managed Resource Types", managedResourceTypes)
+	printList("Data Resource Types", dataResourceTypes)
+	printList("Ephemeral Resource Types", ephemeralResourceTypes)
+	printList("Functions", functions)
+	fmt.Printf("\n")
+}
+
+func printList[V any](title string, m map[string]V) {
+	if len(m) == 0 {
+		return
+	}
+
+	fmt.Printf("\n# %s\n\n", title)
+	for name := range m {
+		fmt.Printf("- `%s`\n", name)
+	}
 }

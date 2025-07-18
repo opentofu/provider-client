@@ -16,12 +16,6 @@ type ProviderSchema interface {
 	// overal configuration, as used with the ConfigureProvider method.
 	ProviderConfigSchema() Schema
 
-	// ProviderMetaSchema returns the schema used for the rarely-used
-	// "provider_meta" block type in the OpenTofu language, which allows
-	// a module author to send module-related metadata with many different
-	// provider requests related to objects in their module.
-	ProviderMetaSchema() Schema
-
 	// ManagedResourceTypeSchemas returns an iterable sequence of the
 	// schema for each managed resource type supported by this provider.
 	//
@@ -57,6 +51,16 @@ type ProviderSchema interface {
 	// map from name to signature if you expect to need signatures for more than
 	// one function.
 	FunctionSignatures() iter.Seq2[string, FunctionSignature]
+
+	// ProviderMetaSchema returns the schema used for the rarely-used
+	// "provider_meta" block type in the OpenTofu language, which allows
+	// a module author to send module-related metadata with many different
+	// provider requests related to objects in their module.
+	//
+	// Most callers should disregard this method. "Provider meta" is not
+	// a widely-used provider protocol feature, and its corresponding
+	// OpenTofu language features are not widely known in the community.
+	ProviderMetaSchema() Schema
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol

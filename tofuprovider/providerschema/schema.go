@@ -24,7 +24,8 @@ type Schema interface {
 	//
 	// Not all schema-based objects in the protocol actually make use of
 	// schema information. It's primarily used for managed resource types
-	// to drive their "schema upgrade" process.
+	// to drive their "schema upgrade" process. For schemas of "unversioned"
+	// objects the result of this method is unspecified and meaningless.
 	SchemaVersion() int64
 
 	// Schema is a kind of [BlockType], which is a configuration-oriented
@@ -64,6 +65,12 @@ type Attribute interface {
 // or possibly a collection of objects of that type depending on the nesting
 // mode.
 type ObjectType interface {
+	// Nesting returns the nesting mode for this nested object type.
+	//
+	// The values returned from this function influence whether and how
+	// the described object type is wrapped into a collection type.
+	Nesting() NestingMode
+
 	// Attributes returns an iterable sequence of the expected attributes
 	// in this object type.
 	//
@@ -81,11 +88,22 @@ type ObjectType interface {
 // features that both top-level blocks and nested blocks have in common.
 type BlockType interface {
 	// Attributes returns an iterable sequence of the expected attributes
-	// in this object type.
+	// in this block type.
 	//
 	// The first result of each item is the unique attribute name. Use
 	// [maps.Collect] to produce a map from attribute name to definition.
 	Attributes() iter.Seq2[string, Attribute]
+
+	// NestedBlockTypes returns an iterable sequence of child block types
+	// that are allowed to nest inside this block type.
+	//
+	// The first result of each item is the unique block type name. Use
+	// [maps.Collect] to produce a map from attribute name to definition.
+	//
+	// In a valid provider schema the keys from [BlockType.Attributes] and
+	// the keys from [BlockType.NestedBlockTypes] are disjoint; there should
+	// never be an attribute and a nested block type of the same name.
+	NestedBlockTypes() iter.Seq2[string, NestedBlockType]
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol
@@ -93,9 +111,48 @@ type BlockType interface {
 	common.Sealed
 }
 
+type NestingMode int
+
+const (
+	// NestingInvalid is the zero value of [NestingMode], used when a provider
+	// returns a value that this library does not support.
+	NestingInvalid NestingMode = 0
+
+	// NestingSingle means that the nested block or object is just a single
+	// object that may be null.
+	NestingSingle NestingMode = 1
+
+	// NestingList means that nested block or object is represented as a
+	// list of the object type implied by the nested block's schema.
+	NestingList NestingMode = 2
+
+	// NestingList means that nested block or object is represented as a
+	// set of the object type implied by the nested block's schema.
+	NestingSet NestingMode = 3
+
+	// NestingList means that nested block or object is represented as a
+	// map of the object type implied by the nested block's schema.
+	NestingMap NestingMode = 4
+
+	// NestingGroup is a slight variant of [NestingSingle] where the client
+	// is expected to never send a null object directly and should instead
+	// construct a non-null object whose attributes are all set to null.
+	//
+	// When constructing the synthetic object to represent the not-present
+	// state, the client may ignore the "requiredness" of nested attributes,
+	// because nested attributes are required only when a block is written
+	// out explicitly in the configuration.
+	NestingGroup NestingMode = 5
+)
+
 // NestedBlockType describes a nested block type that can appear inside
 // another [BlockType].
 type NestedBlockType interface {
+	// Nesting returns the nesting mode for this nested block type.
+	//
+	// The values returned from this function influence whether and how
+	// the described object type is wrapped into a collection type.
+	Nesting() NestingMode
 
 	// NestedBlockType is a kind of [BlockType], which is a
 	// configuration-oriented description of an object type in the OpenTofu
@@ -106,6 +163,27 @@ type NestedBlockType interface {
 	// they are collected into some sort of aggregate type depending on
 	// [NestedBlockType.NestingMode].
 	BlockType
+
+	// ItemLimits returns the minimum and maximum number of nested objects
+	// that are allowed, respectively.
+	//
+	// Item limits are a legacy concept not actually enforced by modern OpenTofu.
+	// Providers are instead expected to enforce any limits as part of the
+	// normal validation process, just like any other non-type-based
+	// constraint on which values can be provided. However, some providers
+	// may still return this information for documentation purposes. Most
+	// callers should completely disregard this method, since its results are
+	// not reliable.
+	//
+	// If the maximum number is returned as zero, that represents that there
+	// is no limit on the number of items allowed. If the minimum number is
+	// one then it represents that at least one item is required. Minimum
+	// values other than zero or one are not meaningful in the modern protocol
+	// and should be treated the same as returning one.
+	//
+	// Item limits are not meaningful for [NestingSingle] and [NestingGroup],
+	// because those nesting modes inherently imply a maximum of one item.
+	ItemLimits() (int64, int64)
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol

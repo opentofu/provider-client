@@ -35,7 +35,7 @@ func (p *Provider) Close() error {
 	return plugin.Close()
 }
 
-func (p *Provider) StopProvider(ctx context.Context) error {
+func (p *Provider) GracefulStop(ctx context.Context) error {
 	resp, err := p.client.StopProvider(ctx, &tfplugin6.StopProvider_Request{})
 	if err != nil {
 		return err
