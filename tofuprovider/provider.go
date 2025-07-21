@@ -36,7 +36,7 @@ type Provider interface {
 	// resource types, so a caller must not assume that concurrent calls
 	// definitly will return promptly after calling this method.
 	//
-	// It's safe to call StopProvider multiple times on the same provider,
+	// It's safe to call GracefulStop multiple times on the same provider,
 	// although for most providers the additional calls have no additional
 	// effect.
 	GracefulStop(ctx context.Context) error
