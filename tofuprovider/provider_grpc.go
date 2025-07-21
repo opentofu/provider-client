@@ -32,6 +32,14 @@ type GRPCPluginProvider interface {
 	// inside this library rather than remotely in the plugin.
 	Provider
 
+	// ProtocolMajorVersion returns the major version number of the wire
+	// protocol that was negotiated during startup.
+	//
+	// In most cases the [Provider] abstraction should avoid callers needing
+	// to vary their behavior by major version. This is exposed primarily
+	// to allow callers to include it as diagnostic information in logs/etc
+	ProtocolMajorVersion() int
+
 	// Close terminates the child process representing the provider.
 	//
 	// After calling this function, the client object enters an invalid state

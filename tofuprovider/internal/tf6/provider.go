@@ -25,6 +25,10 @@ func NewProvider(ctx context.Context, plugin *rpcplugin.Plugin, clientProxy any)
 	}, nil
 }
 
+func (p *Provider) ProtocolMajorVersion() int {
+	return 6
+}
+
 func (p *Provider) Close() error {
 	if p.plugin == nil {
 		return nil // it's okay to call Close multiple times on the same provider instance
