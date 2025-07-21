@@ -28,6 +28,11 @@ type Provider interface {
 	// provider's support of the provider protocol.
 	GetProviderSchema(ctx context.Context, req *providerops.GetProviderSchemaRequest) (providerops.GetProviderSchemaResponse, error)
 
+	// ValidateProviderConfig tests whether a given provider configuration
+	// object is acceptable per the provider's internally-implemented
+	// validation rules.
+	ValidateProviderConfig(ctx context.Context, req *providerops.ValidateProviderConfigRequest) (providerops.ValidateProviderConfigResponse, error)
+
 	// GracefulStop asks the provider to gracefully abort any active
 	// calls that are running concurrently, causing them to return
 	// with a cancellation-related error as soon as it's safe to do so.
