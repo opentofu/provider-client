@@ -1,6 +1,8 @@
 package providerschema
 
 import (
+	"fmt"
+
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 
 	"github.com/zclconf/go-cty/cty"
@@ -96,4 +98,63 @@ func (dv DynamicValueIn) Value() cty.Value {
 // or [cty.NilType] if called on [NoDynamicValue].
 func (dv DynamicValueIn) SerializationType() cty.Type {
 	return dv.ty
+}
+
+// RawState is a low-level, raw representation of resource instance state
+// as it would be saved by OpenTofu in a state snapshot.
+//
+// This is used only when preparing previously-saved state data for use
+// in a new version, where the client cannot know what schema was used
+// in an earlier version of the provider and thus how to decode the
+// data saved in the state.
+type RawState struct {
+	// JSON is the JSON representation of the resource instance state data
+	// exactly as saved in OpenTofu state snapshot files.
+	//
+	// This part of the protocol is troublesome for use by clients other than
+	// OpenTofu because it relies on internal details of OpenTofu's state
+	// snapshot format. Use NewRawState with data state data returned from
+	// some other provider operation to produce a suitable value to save
+	// and provide in a future call to UpgradeeManagedResourceState.
+	JSON []byte
+
+	// Flatmap is a historical legacy representation of resource instance
+	// state data created by obsolete versions of Terraform. Clients should
+	// use this only if they are trying to work with data from
+	// OpenTofu/Terraform state snapshots and when the corresponding field
+	// is populated in those state snapshots. None of the provider protocols
+	// supported by this library can produce new data in flatmap format,
+	// so clients that are only saving data they created using other parts
+	// of this library can ignore this field completely.
+	Flatmap map[string]string
+}
+
+// NewRawState emulates OpenTofu's behavior when preparing resource instance
+// state data to save as part of a state snapshot file, producing some data
+// that can be saved and used in future calls to UpgradeeManagedResourceState
+// to prepare a value for use in possibly-different version of the same
+// provider.
+//
+// Because [RawState.Flatmap] is a legacy field only used for state snapshots
+// created in obsolete versions of Terraform, that field is guaranteed to
+// always be nil in the result: this function always populates only the
+// JSON field, and so it's valid for a caller to just save the content of
+// that field alone.
+//
+// This is a small pragmatic exception to the usual rule that this library
+// does not provide any abstraction of the provider protocol other than
+// hiding the protocol version negotiation, since this behavior is relatively
+// straightforward to implement and it's impossible to implement the resource
+// instance change lifecycle correctly without it.
+func NewRawState(v cty.Value, ty cty.Type) (RawState, error) {
+	// OpenTofu's current state snapshot representation at the time of writing
+	// is to use cty's JSON serialization of the value in the JSON field,
+	// and leave Flatmap completely unset.
+	src, err := common.CtyValueAsJSON(v, ty)
+	if err != nil {
+		return RawState{}, fmt.Errorf("can't serialize as JSON: %w", err)
+	}
+	return RawState{
+		JSON: src,
+	}, nil
 }

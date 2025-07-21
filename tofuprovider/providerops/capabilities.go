@@ -43,3 +43,27 @@ type ServerCapabilities interface {
 
 	common.Sealed
 }
+
+type ClientCapabilities struct {
+	// If SupportsDeferral is set, providers are allowed to return a non-nil
+	// value from the "Deferred" method of the corresponding response type,
+	// if present. When that field is set the caller must treat the response
+	// as a possibly-incomplete prediction of what the resource will be once
+	// more information is available, and so must not plan any immediate actions
+	// based on the response.
+	//
+	// If this is not set then a provider is required to treat a deferral
+	// situation as an error, describing the problem using one or more
+	// error diagnostics.
+	SupportsDeferral bool
+
+	// If SupportsWriteOnlyAttributes is set, the client is able to correctly
+	// handle write-only attributes.
+	//
+	// Providers typically use this to determine whether it's safe to accept
+	// non-null values for write-only attributes, because older clients don't
+	// understand that the values must not be persisted to plan files or state
+	// snapshots. Therefore not setting this will typically cause providers
+	// to return errors or warnings when write-only attributes are set.
+	SupportsWriteOnlyAttributes bool
+}
