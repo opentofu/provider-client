@@ -9,3 +9,7 @@ import (
 func (p *Provider) ValidateProviderConfig(ctx context.Context, req *providerops.ValidateProviderConfigRequest) (providerops.ValidateProviderConfigResponse, error) {
 	panic("not yet implemented")
 }
+
+func (p *Provider) ConfigureProvider(ctx context.Context, req *providerops.ConfigureProviderRequest) (providerops.ConfigureProviderResponse, error) {
+	panic("unimplemented")
+}

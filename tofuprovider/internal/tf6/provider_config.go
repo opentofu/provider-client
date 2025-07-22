@@ -34,3 +34,7 @@ type validateProviderConfigResponse struct {
 func (v validateProviderConfigResponse) Diagnostics() providerops.Diagnostics {
 	return diagnostics{proto: v.proto.Diagnostics}
 }
+
+func (p *Provider) ConfigureProvider(ctx context.Context, req *providerops.ConfigureProviderRequest) (providerops.ConfigureProviderResponse, error) {
+	panic("unimplemented")
+}

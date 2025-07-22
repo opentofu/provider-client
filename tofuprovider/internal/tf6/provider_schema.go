@@ -45,6 +45,10 @@ func (g getProviderSchemaResponse) ServerCapabilities() providerops.ServerCapabi
 	return serverCapabilities{proto: g.proto.ServerCapabilities}
 }
 
+func (p *Provider) GetFunctions(ctx context.Context, req *providerops.GetFunctionsRequest) (providerops.GetFunctionsResponse, error) {
+	panic("unimplemented")
+}
+
 type providerSchema struct {
 	proto *tfplugin6.GetProviderSchema_Response
 

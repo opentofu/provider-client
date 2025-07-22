@@ -26,12 +26,36 @@ type Provider interface {
 	// The response also includes a [ServerCapabilities] object which the
 	// caller should use to recognize certain limitations in a particular
 	// provider's support of the provider protocol.
+	//
+	// This method should be called before calling [ConfigureProvider].
 	GetProviderSchema(ctx context.Context, req *providerops.GetProviderSchemaRequest) (providerops.GetProviderSchemaResponse, error)
+
+	// GetFunctions is essentially a lighter version of GetProviderSchema
+	// that describes only the provider's exported functions.
+	//
+	// Most callers should fall back on using GetProviderSchema if this method
+	// returns an error that causes [providerops.IsUnimplementedErr] to
+	// return true.
+	GetFunctions(ctx context.Context, req *providerops.GetFunctionsRequest) (providerops.GetFunctionsResponse, error)
 
 	// ValidateProviderConfig tests whether a given provider configuration
 	// object is acceptable per the provider's internally-implemented
 	// validation rules.
+	//
+	// This method should be called before calling [ConfigureProvider].
 	ValidateProviderConfig(ctx context.Context, req *providerops.ValidateProviderConfigRequest) (providerops.ValidateProviderConfigResponse, error)
+
+	// ConfigureProvider asks the provider to transition from the "unconfigured"
+	// state to the "configured" state, using a given configuration value.
+	//
+	// This should be called only once per provider instance. Repeated calls
+	// cause unspecified behavior. Most other methods of this type are only
+	// valid to call after a provider has been successfully configured.
+	//
+	// There is no way to revert from "configured" to "unconfigured", so callers
+	// that need ongoing access to the unconfigured operations should retain
+	// a separate instance for which ConfigureProvider is never called.
+	ConfigureProvider(ctx context.Context, req *providerops.ConfigureProviderRequest) (providerops.ConfigureProviderResponse, error)
 
 	// UpgradeManagedResourceState asks the provider to prepare some raw data
 	// previously saved for a managed resource instance to suit the schema
@@ -93,11 +117,14 @@ type Provider interface {
 	//
 	// Not all providers actually support cancellation for all of their
 	// resource types, so a caller must not assume that concurrent calls
-	// definitly will return promptly after calling this method.
+	// will definitely return promptly after calling this method.
 	//
 	// It's safe to call GracefulStop multiple times on the same provider,
 	// although for most providers the additional calls have no additional
-	// effect.
+	// effect. Calling other methods after calling GracefulStop causes
+	// unspecified behavior: the provider might choose to immediately return
+	// a cancellation-related error, or it might exhibit strange behavior
+	// such as only partially completing a request.
 	GracefulStop(ctx context.Context) error
 
 	// This interface cannot be implemented outside of this module, because
