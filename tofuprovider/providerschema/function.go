@@ -28,6 +28,10 @@ type FunctionSignature interface {
 	// arguments at all.
 	VariadicParameter() FunctionParameter
 
+	// ResultType returns a type constraint for what the function could
+	// possibly return.
+	ResultType() TypeConstraint
+
 	// DocSummary returns the provider's human-readable short summary of the
 	// purpose of this function, intended for use in a listing or table of
 	// functions available for the provider, or an empty string if the provider

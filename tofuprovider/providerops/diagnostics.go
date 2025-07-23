@@ -48,3 +48,14 @@ const (
 	DiagnosticWarning     DiagnosticSeverity = 1
 	DiagnosticError       DiagnosticSeverity = 2
 )
+
+// FunctionError describes an error that occurred when calling a function.
+type FunctionError interface {
+	// Text returns the human-oriented description of the problem.
+	Text() string
+
+	// ArgumentIndex returns the index of an argument that is being blamed
+	// for the problem along with true, or a meaningless value along with
+	// false if this error is not specific to an individual argument.
+	ArgumentIndex() (int, bool)
+}

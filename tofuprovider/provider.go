@@ -30,14 +30,6 @@ type Provider interface {
 	// This method should be called before calling [ConfigureProvider].
 	GetProviderSchema(ctx context.Context, req *providerops.GetProviderSchemaRequest) (providerops.GetProviderSchemaResponse, error)
 
-	// GetFunctions is essentially a lighter version of GetProviderSchema
-	// that describes only the provider's exported functions.
-	//
-	// Most callers should fall back on using GetProviderSchema if this method
-	// returns an error that causes [providerops.IsUnimplementedErr] to
-	// return true.
-	GetFunctions(ctx context.Context, req *providerops.GetFunctionsRequest) (providerops.GetFunctionsResponse, error)
-
 	// ValidateProviderConfig tests whether a given provider configuration
 	// object is acceptable per the provider's internally-implemented
 	// validation rules.
@@ -56,6 +48,11 @@ type Provider interface {
 	// that need ongoing access to the unconfigured operations should retain
 	// a separate instance for which ConfigureProvider is never called.
 	ConfigureProvider(ctx context.Context, req *providerops.ConfigureProviderRequest) (providerops.ConfigureProviderResponse, error)
+
+	// ValidateManagedResourceConfig tests whether a given managed resource
+	// configuration object is acceptable per the provider's internally-implemented
+	// validation rules.
+	ValidateManagedResourceConfig(ctx context.Context, req *providerops.ValidateManagedResourceConfigRequest) (providerops.ValidateManagedResourceConfigResponse, error)
 
 	// UpgradeManagedResourceState asks the provider to prepare some raw data
 	// previously saved for a managed resource instance to suit the schema
@@ -110,6 +107,52 @@ type Provider interface {
 	// source provider is no longer usable for some reason, such as if it's
 	// deprecated has no releases available for the current platform.)
 	MoveManagedResourceState(ctx context.Context, req *providerops.MoveManagedResourceStateRequest) (providerops.MoveManagedResourceStateResponse, error)
+
+	// ValidateDataResourceConfig tests whether a given data resource
+	// configuration object is acceptable per the provider's internally-implemented
+	// validation rules.
+	//
+	// This method should be called before calling [ConfigureProvider].
+	ValidateDataResourceConfig(ctx context.Context, req *providerops.ValidateDataResourceConfigRequest) (providerops.ValidateDataResourceConfigResponse, error)
+
+	// ReadDataResource asks the provider to read from a data source
+	// corresponding to a particular data resource type.
+	ReadDataResource(ctx context.Context, req *providerops.ReadDataResourceRequest) (providerops.ReadDataResourceResponse, error)
+
+	// ValidateEphemeralResourceConfig tests whether a given ephemeral resource
+	// configuration object is acceptable per the provider's internally-implemented
+	// validation rules.
+	//
+	// This method should be called before calling [ConfigureProvider].
+	ValidateEphemeralResourceConfig(ctx context.Context, req *providerops.ValidateEphemeralResourceConfigRequest) (providerops.ValidateEphemeralResourceConfigResponse, error)
+
+	// OpenEphemeralResource asks the provider to "open" (create, acquire, etc)
+	// something represented by an ephemeral resource type.
+	OpenEphemeralResource(ctx context.Context, req *providerops.OpenEphemeralResourceRequest) (providerops.OpenEphemeralResourceResponse, error)
+
+	// RenewEphemeralResource asks the provider to renew whatever is associated
+	// with an ephemeral resource that was previously opened and that indicated
+	// that it needs periodic renewal.
+	RenewEphemeralResource(ctx context.Context, req *providerops.RenewEphemeralResourceRequest) (providerops.RenewEphemeralResourceResponse, error)
+
+	// CloseEphemeralResource asks the provider to "close" (delete, release, etc)
+	// whatever is associated with an ephemeral resource that was previously
+	// opened.
+	CloseEphemeralResource(ctx context.Context, req *providerops.CloseEphemeralResourceRequest) (providerops.CloseEphemeralResourceResponse, error)
+
+	// GetFunctions is essentially a lighter version of GetProviderSchema
+	// that describes only the provider's exported functions.
+	//
+	// Most callers should fall back on using GetProviderSchema if this method
+	// returns an error that causes [providerops.IsUnimplementedErr] to
+	// return true.
+	//
+	// This method should be called before calling [ConfigureProvider].
+	GetFunctions(ctx context.Context, req *providerops.GetFunctionsRequest) (providerops.GetFunctionsResponse, error)
+
+	// CallFunction calls one of the functions supported by the provider using
+	// a given set of arguments, returning the function's result.
+	CallFunction(ctx context.Context, req *providerops.CallFunctionRequest) (providerops.CallFunctionResponse, error)
 
 	// GracefulStop asks the provider to gracefully abort any active
 	// calls that are running concurrently, causing them to return

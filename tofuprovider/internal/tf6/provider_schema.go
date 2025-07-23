@@ -223,6 +223,11 @@ func (f functionSignature) VariadicParameter() providerschema.FunctionParameter 
 	return functionParameter{proto: f.proto.VariadicParameter}
 }
 
+// ResultType implements providerschema.FunctionSignature.
+func (f functionSignature) ResultType() providerschema.TypeConstraint {
+	return common.CtyTypeJSON(f.proto.Return.Type)
+}
+
 type functionParameter struct {
 	proto *tfplugin6.Function_Parameter
 	common.SealedImpl

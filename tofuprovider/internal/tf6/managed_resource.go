@@ -35,3 +35,8 @@ func (p *Provider) ReadManagedResource(ctx context.Context, req *providerops.Rea
 func (p *Provider) UpgradeManagedResourceState(ctx context.Context, req *providerops.UpgradeManagedResourceStateRequest) (providerops.UpgradeManagedResourceStateResponse, error) {
 	panic("unimplemented")
 }
+
+// ValidateManagedResourceConfig implements tofuprovider.GRPCPluginProvider.
+func (p *Provider) ValidateManagedResourceConfig(ctx context.Context, req *providerops.ValidateManagedResourceConfigRequest) (providerops.ValidateManagedResourceConfigResponse, error) {
+	panic("unimplemented")
+}
