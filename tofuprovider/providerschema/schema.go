@@ -40,6 +40,10 @@ type Schema interface {
 
 // Attribute describes a single attribute within a [BlockType].
 type Attribute interface {
+	// Usage returns an enumeration value describing how this attribute can
+	// be used across both the configuration and provider responses.
+	Usage() AttributeUsage
+
 	// Type returns the type constraint that any value assigned to this
 	// attribute must conform to.
 	//
@@ -59,7 +63,65 @@ type Attribute interface {
 	// A correct provider should implement exactly one of these two
 	// methods.
 	NestedType() ObjectType
+
+	// If IsWriteOnly returns true then this attribute should appear only
+	// in objects describing configuration, and should be null for
+	// objects representing the object's state.
+	//
+	// This is meaningful only for the schema of a resource, where there
+	// is an explicit distinction between "configuration" and "state" values.
+	// Its result is meaningless and unspecified in other contexts.
+	IsWriteOnly() bool
+
+	// If IsSensitive returns true then the provider suggests that values
+	// associated with this attribute not be displayed by default in any
+	// human-oriented UI.
+	IsSensitive() bool
+
+	// DocDescription returns the provider's human-readable description
+	// of the attribute. The second result describes the intended format for the
+	// the description string.
+	DocDescription() (string, DocStringFormat)
+
+	// IsDeprecated returns true if the provider considers this attribute to
+	// be deprecated.
+	IsDeprecated() bool
 }
+
+// AttributeUsage is an enumeration describing how a particular attribute can
+// be used across both the configuration and provider responses.
+type AttributeUsage int
+
+const (
+	// AttributeUsageUnsupported represents that the provider returned an
+	// attribute usage that this library does not understand.
+	AttributeUsageUnsupported AttributeUsage = 0
+
+	// AttributeRequired means that the attribute must be set to a non-null
+	// value in the configuration and cannot be overridden by the provider
+	// at all.
+	AttributeRequired AttributeUsage = 1
+
+	// AttributeRequired means that the attribute may be set in the
+	// configuration, but if it is not set then it defaults to null.
+	AttributeOptional AttributeUsage = 2
+
+	// AttributeOptionalComputed means that the attribute may be set in the
+	// configuration, but if (and only if) it is not set then the provider
+	// will provide a value to be used as a default.
+	//
+	// This usage is allowed only for schemas representing object types that
+	// can be returned in the result of a provider call.
+	AttributeOptionalComputed AttributeUsage = 3
+
+	// AttributeComputed means that the attribute may not be set in the
+	// configuration and its value is decided exclusively by the provider in
+	// all cases.
+	//
+	// This usage is allowed only for schemas representing object types that
+	// can be returned in the result of a provider call.
+	AttributeComputed AttributeUsage = 4
+)
 
 // ObjectType describes an object type to be used with an [Attribute],
 // or possibly a collection of objects of that type depending on the nesting

@@ -144,6 +144,42 @@ func (a attribute) Type() providerschema.TypeConstraint {
 	return common.CtyTypeJSON(a.proto.Type)
 }
 
+// DeprecationMessage implements providerschema.Attribute.
+func (a attribute) IsDeprecated() bool {
+	return a.proto.Deprecated
+}
+
+// DocDescription implements providerschema.Attribute.
+func (a attribute) DocDescription() (string, providerschema.DocStringFormat) {
+	return a.proto.Description, docStringFormat(a.proto.DescriptionKind)
+}
+
+// IsSensitive implements providerschema.Attribute.
+func (a attribute) IsSensitive() bool {
+	return a.proto.Sensitive
+}
+
+// IsWriteOnly implements providerschema.Attribute.
+func (a attribute) IsWriteOnly() bool {
+	return a.proto.WriteOnly
+}
+
+// Usage implements providerschema.Attribute.
+func (a attribute) Usage() providerschema.AttributeUsage {
+	switch {
+	case a.proto.Required && !a.proto.Optional && !a.proto.Computed:
+		return providerschema.AttributeRequired
+	case !a.proto.Required && a.proto.Optional && !a.proto.Computed:
+		return providerschema.AttributeOptional
+	case !a.proto.Required && a.proto.Optional && a.proto.Computed:
+		return providerschema.AttributeOptionalComputed
+	case !a.proto.Required && !a.proto.Optional && a.proto.Computed:
+		return providerschema.AttributeComputed
+	default:
+		return providerschema.AttributeUsageUnsupported
+	}
+}
+
 type objectType struct {
 	proto *tfplugin6.Schema_Object
 	common.SealedImpl
