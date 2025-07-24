@@ -77,11 +77,17 @@ func (p providerSchema) ManagedResourceTypeSchemas() iter.Seq2[string, providers
 
 // ProviderConfigSchema implements providerschema.ProviderSchema.
 func (p providerSchema) ProviderConfigSchema() providerschema.Schema {
+	if p.proto.Provider == nil {
+		return nil
+	}
 	return schema{proto: p.proto.Provider}
 }
 
 // ProviderMetaSchema implements providerschema.ProviderSchema.
 func (p providerSchema) ProviderMetaSchema() providerschema.Schema {
+	if p.proto.ProviderMeta == nil {
+		return nil
+	}
 	return schema{proto: p.proto.ProviderMeta}
 }
 
