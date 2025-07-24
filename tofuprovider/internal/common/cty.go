@@ -19,7 +19,15 @@ func (c CtyTypeJSON) sealed() {}
 
 type CtyValueJSON []byte
 
+func (c CtyValueJSON) AsCtyValue(withType cty.Type) (cty.Value, error) {
+	return ctyjson.Unmarshal(c, withType)
+}
+
 type CtyValueMsgpack []byte
+
+func (c CtyValueMsgpack) AsCtyValue(withType cty.Type) (cty.Value, error) {
+	return ctymsgpack.Unmarshal(c, withType)
+}
 
 func CtyValueAsJSON(v cty.Value, ty cty.Type) ([]byte, error) {
 	return ctyjson.Marshal(v, ty)

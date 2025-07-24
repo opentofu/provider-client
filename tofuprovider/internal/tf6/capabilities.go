@@ -3,6 +3,7 @@ package tf6
 import (
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
 )
 
 type serverCapabilities struct {
@@ -33,4 +34,14 @@ func (s serverCapabilities) GetProviderSchemaIsOptional() bool {
 		return false
 	}
 	return s.proto.GetProviderSchemaOptional
+}
+
+func prepareClientCapabilities(caps *providerops.ClientCapabilities) *tfplugin6.ClientCapabilities {
+	if caps == nil {
+		return nil
+	}
+	return &tfplugin6.ClientCapabilities{
+		DeferralAllowed:            caps.SupportsDeferral,
+		WriteOnlyAttributesAllowed: caps.SupportsWriteOnlyAttributes,
+	}
 }
