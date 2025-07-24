@@ -1,7 +1,7 @@
 package tf6
 
 import (
-	"github.com/apparentlymart/opentofu-providers/internal/tfplugin6"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 )
 

@@ -3,7 +3,7 @@ package tf6
 import (
 	"fmt"
 
-	"github.com/apparentlymart/opentofu-providers/internal/tfplugin6"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerschema"
 )

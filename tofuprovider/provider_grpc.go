@@ -40,6 +40,24 @@ type GRPCPluginProvider interface {
 	// to allow callers to include it as diagnostic information in logs/etc
 	ProtocolMajorVersion() int
 
+	// ClientProxy returns the underlying gRPC client proxy object that this
+	// provider is using to make the lower-level protocol requests.
+	//
+	// The result implements a different interface depending on which major
+	// protocol version was negotiated, as returned by
+	// [GRPCPluginProvider.ProtocolMajorVersion]:
+	// - Version 6 client proxy implements [tfplugin6.ProviderClient]
+	// - Version 5 client proxy implements [tfplugin5.ProviderClient]
+	//
+	// The set of supported versions could change in future, so callers using
+	// this lower-level API should robustly handle recieving a client proxy
+	// that implements neither of these interfaces. If the goal is to use
+	// protocol features that are not part of this module's abstraction then
+	// it may be better to use the tfplugin5/tfplugin6 APIs directly with
+	// the underlying rpcplugin or go-plugin libraries and skip this
+	// abstraction altogether.
+	ClientProxy() any
+
 	// Close terminates the child process representing the provider.
 	//
 	// After calling this function, the client object enters an invalid state

@@ -7,7 +7,7 @@ import (
 	"go.rpcplugin.org/rpcplugin"
 	"google.golang.org/grpc"
 
-	"github.com/apparentlymart/opentofu-providers/internal/tfplugin6"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 )
 
@@ -27,6 +27,10 @@ func NewProvider(ctx context.Context, plugin *rpcplugin.Plugin, clientProxy any)
 
 func (p *Provider) ProtocolMajorVersion() int {
 	return 6
+}
+
+func (p *Provider) ClientProxy() any {
+	return p.client
 }
 
 func (p *Provider) Close() error {
