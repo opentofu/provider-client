@@ -2,7 +2,10 @@ package tf5
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin5"
+	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
 	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
 )
 
@@ -23,5 +26,28 @@ func (p *Provider) RenewEphemeralResource(ctx context.Context, req *providerops.
 
 // ValidateEphemeralResourceConfig implements tofuprovider.GRPCPluginProvider.
 func (p *Provider) ValidateEphemeralResourceConfig(ctx context.Context, req *providerops.ValidateEphemeralResourceConfigRequest) (providerops.ValidateEphemeralResourceConfigResponse, error) {
-	panic("unimplemented")
+	configVal, err := makeDynamicValueMsgpack(req.Config)
+	if err != nil {
+		return nil, fmt.Errorf("invalid Config value: %w", err)
+	}
+	protoReq := &tfplugin5.ValidateEphemeralResourceConfig_Request{
+		TypeName: req.ResourceType,
+		Config:   configVal,
+	}
+
+	protoResp, err := p.client.ValidateEphemeralResourceConfig(ctx, protoReq)
+	if err != nil {
+		return nil, err
+	}
+	return validateEphemeralResourceConfigResponse{proto: protoResp}, nil
+}
+
+type validateEphemeralResourceConfigResponse struct {
+	proto *tfplugin5.ValidateEphemeralResourceConfig_Response
+	common.SealedImpl
+}
+
+// Diagnostics implements providerops.ValidateEphemeralResourceConfigResponse.
+func (v validateEphemeralResourceConfigResponse) Diagnostics() providerops.Diagnostics {
+	return diagnostics{proto: v.proto.Diagnostics}
 }
