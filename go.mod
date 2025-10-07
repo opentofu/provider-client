@@ -1,6 +1,6 @@
 module github.com/apparentlymart/opentofu-providers
 
-go 1.24
+go 1.25
 
 require (
 	github.com/zclconf/go-cty v1.16.3
