@@ -6,4 +6,8 @@
 // hiding low-level wire protocol details and differences between supported
 // protocols, while otherwise directly modeling the conceptual protocol with
 // minimal additional abstraction.
+//
+// This is currently in very early development and not yet ready to use.
+// Anything about this library's API and behavior could potentially change
+// before it reaches a stable release.
 package tofuprovider
