@@ -3,8 +3,8 @@ package providerops
 import (
 	"time"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerschema"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 )
 
 type OpenEphemeralResourceRequest struct {

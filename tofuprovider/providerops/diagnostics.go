@@ -3,7 +3,7 @@ package providerops
 import (
 	"iter"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 
 	// For links in documentation comments:
 	_ "slices"

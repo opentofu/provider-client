@@ -1,4 +1,4 @@
-module github.com/apparentlymart/opentofu-providers
+module github.com/opentofu/provider-client
 
 go 1.25
 

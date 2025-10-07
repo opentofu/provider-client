@@ -4,9 +4,9 @@ import (
 	"iter"
 	"slices"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
+	"github.com/opentofu/provider-client/tofuprovider/grpc/tfplugin6"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/providerops"
 )
 
 type diagnostics struct {

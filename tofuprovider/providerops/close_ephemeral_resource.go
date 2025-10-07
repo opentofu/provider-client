@@ -1,7 +1,7 @@
 package providerops
 
 import (
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 )
 
 type CloseEphemeralResourceRequest struct {

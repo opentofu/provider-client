@@ -7,10 +7,10 @@ import (
 
 	"go.rpcplugin.org/rpcplugin"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf5"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/tf6"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providertrace"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/internal/tf5"
+	"github.com/opentofu/provider-client/tofuprovider/internal/tf6"
+	"github.com/opentofu/provider-client/tofuprovider/providertrace"
 
 	// The following is required to force google.golang.org/genproto to
 	// appear in our go.mod, which is in turn needed to resolve ambiguous

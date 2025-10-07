@@ -3,9 +3,9 @@ package tf5
 import (
 	"fmt"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin5"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerschema"
+	"github.com/opentofu/provider-client/tofuprovider/grpc/tfplugin5"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 	"github.com/zclconf/go-cty/cty"
 )
 

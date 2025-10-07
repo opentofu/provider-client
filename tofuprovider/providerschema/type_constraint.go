@@ -3,7 +3,7 @@ package providerschema
 import (
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 )
 
 // TypeConstraint describes a type constraint that some value is required

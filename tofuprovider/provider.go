@@ -3,8 +3,8 @@ package tofuprovider
 import (
 	"context"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/providerops"
 
 	// The following is required to force google.golang.org/genproto to
 	// appear in our go.mod, which is in turn needed to resolve ambiguous

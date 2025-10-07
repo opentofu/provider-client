@@ -6,10 +6,10 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/grpc/tfplugin6"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/internal/common"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerschema"
+	"github.com/opentofu/provider-client/tofuprovider/grpc/tfplugin6"
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
+	"github.com/opentofu/provider-client/tofuprovider/providerops"
+	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 )
 
 func (p *Provider) GetProviderSchema(ctx context.Context, req *providerops.GetProviderSchemaRequest) (providerops.GetProviderSchemaResponse, error) {

@@ -6,8 +6,8 @@ import (
 	"maps"
 	"os"
 
-	"github.com/apparentlymart/opentofu-providers/tofuprovider"
-	"github.com/apparentlymart/opentofu-providers/tofuprovider/providerops"
+	"github.com/opentofu/provider-client/tofuprovider"
+	"github.com/opentofu/provider-client/tofuprovider/providerops"
 )
 
 func main() {
