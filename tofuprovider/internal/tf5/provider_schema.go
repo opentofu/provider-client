@@ -117,6 +117,14 @@ func (s schema) SchemaVersion() int64 {
 	return s.proto.Version
 }
 
+// DocDescription implements providerschema.Schema.
+func (s schema) DocDescription() (string, providerschema.DocStringFormat) {
+	if s.proto.Block == nil {
+		return "", providerschema.DocStringPlain
+	}
+	return s.proto.Block.Description, docStringFormat(s.proto.Block.DescriptionKind)
+}
+
 type attribute struct {
 	proto *tfplugin5.Schema_Attribute
 	common.SealedImpl

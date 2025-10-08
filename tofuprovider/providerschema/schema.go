@@ -28,6 +28,11 @@ type Schema interface {
 	// objects the result of this method is unspecified and meaningless.
 	SchemaVersion() int64
 
+	// DocDescription returns the provider's human-readable description
+	// of the schema block. The second result describes the intended format for the
+	// the description string.
+	DocDescription() (string, DocStringFormat)
+
 	// Schema is a kind of [BlockType], which is a configuration-oriented
 	// description of an object type in the OpenTofu language.
 	BlockType
