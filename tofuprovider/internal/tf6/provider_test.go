@@ -6,6 +6,7 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/opentofu/provider-client/tofuprovider/grpc/tfplugin6"
+	"github.com/opentofu/provider-client/tofuprovider/internal/mockutil"
 	"github.com/opentofu/provider-client/tofuprovider/internal/tf6"
 )
 
@@ -26,7 +27,7 @@ func TestProviderBasics(t *testing.T) {
 		t.Error("ClientProxy did not return the originally-provided client")
 	}
 
-	client.EXPECT().StopProvider(gomock.Any(), gomock.Eq(&tfplugin6.StopProvider_Request{})).Return(&tfplugin6.StopProvider_Response{}, nil)
+	client.EXPECT().StopProvider(gomock.Any(), mockutil.Eq(&tfplugin6.StopProvider_Request{})).Return(&tfplugin6.StopProvider_Response{}, nil)
 	if err := provider.GracefulStop(t.Context()); err != nil {
 		t.Errorf("GracefulStop failed: %s", err)
 	}
