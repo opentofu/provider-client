@@ -18,6 +18,13 @@ type Provider struct {
 	common.SealedImpl
 }
 
+// NewProvider builds a new [Provider] wrapping the given plugin process and
+// client proxy.
+//
+// Pass a nil plugin if the given client proxy is for an in-process
+// implementation, such as a mock used for testing. If you pass a non-nil plugin
+// then it will be closed automatically when the provider is closed but won't
+// be used for any other purpose.
 func NewProvider(ctx context.Context, plugin *rpcplugin.Plugin, clientProxy any) (*Provider, error) {
 	return &Provider{
 		client: clientProxy.(tfplugin6.ProviderClient),
@@ -34,12 +41,12 @@ func (p *Provider) ClientProxy() any {
 }
 
 func (p *Provider) Close() error {
-	if p.plugin == nil {
-		return nil // it's okay to call Close multiple times on the same provider instance
-	}
 	plugin := p.plugin
 	p.plugin = nil
 	p.client = nil // subsequent usage of the client will panic
+	if plugin == nil {
+		return nil // it's okay to call Close multiple times on the same provider instance
+	}
 	return plugin.Close()
 }
 

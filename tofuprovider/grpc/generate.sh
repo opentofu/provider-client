@@ -13,4 +13,4 @@ for pkgname in tfplugin5 tfplugin6; do
     echo "Generating protobuf stubs for ${pkgname}..."
     "${DIR}/${pkgname}/generate.sh"
 done
-echo "All done!"
+echo "All done! Remember to run 'go generate ./...' to update the client mocks too."
