@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# This is a stub to help our generate scripts run a predefined version of
+# protoc, instead of whichever one is globally installed on the system where
+# we're currently running.
+#
+# Because protoc is not a Go program this is more involved than the other
+# wrapper scripts in this directory. It also only supports running on Linux
+# and macOS on a predefined subset of CPU architectures, so anyone who is
+# updating the proto files in this codebase will need to use one of these
+# supported platforms to do so. (The generated code is more portable once the
+# generation process is complete, though.)
+
+set -euo pipefail
+
+PROTOC_VERSION=34.1
+
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m | tr '[:upper:]' '[:lower:]')"
+PLATFORM="${OS}-${ARCH}"
+
+ensure_installed() {
+    local VERSION=$1
+    local PLATFORM=$2
+    local PROTOC_URL=...
+
+    local SOURCE="${BASH_SOURCE[0]}"
+    while [ -h "$SOURCE" ]; do SOURCE="$(readlink "$SOURCE")"; done
+    local BASEDIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    local VERDIR="${BASEDIR}/.protoc/${VERSION}"
+    local INSTDIR="${VERDIR}/${PLATFORM}"
+    local PKGFILE="${VERDIR}/${PLATFORM}.zip"
+
+    if [ -d "${INSTDIR}" ]; then
+        # It already seems to be installed, so we have nothing to do.
+        echo "$INSTDIR"
+        exit 0
+    fi
+
+    case "${PLATFORM}" in
+        "linux-x86_64" | "linux-amd64")
+            PROTOC_URL=https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-linux-x86_64.zip
+            ;;
+        "linux-aarch64" | "linux-arm64")
+            PROTOC_URL=https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-linux-aarch_64.zip
+            ;;
+        "darwin-x86_64" | "darwin-amd64")
+            PROTOC_URL=https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-osx-x86_64.zip
+            ;;
+        "darwin-aarch64" | "darwin-arm64")
+            PROTOC_URL=https://github.com/protocolbuffers/protobuf/releases/download/v${VERSION}/protoc-${VERSION}-osx-aarch_64.zip
+            ;;
+        *)
+            echo >&2 "Error: don't know how to install protoc for ${PLATFORM}"
+            exit 1
+            ;;
+    esac
+
+    mkdir -p -- "${VERDIR}"
+    curl -fSsL -o "${PKGFILE}" -- "${PROTOC_URL}"
+    unzip -oqq "${PKGFILE}" -d "${INSTDIR}"
+
+    echo "$INSTDIR"
+}
+
+INSTDIR="$(ensure_installed "$PROTOC_VERSION" "$PLATFORM")"
+PROTOC="${INSTDIR}/bin/protoc"
+
+exec -- "${PROTOC}" "$@"

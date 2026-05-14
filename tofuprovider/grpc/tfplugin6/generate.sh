@@ -24,4 +24,9 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 cd "$DIR"
 
+# We use stub wrappers around protoc, protoc-gen-go, and protoc-gen-go-grpc so
+# that we can auto-install them when needed and make sure we're using a
+# predictable version of each.
+export PATH=$(readlink -f "../scripts"):$PATH
+
 protoc -I ./ tfplugin6.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative
