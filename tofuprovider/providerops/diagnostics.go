@@ -43,6 +43,8 @@ type Diagnostic interface {
 
 type DiagnosticSeverity int
 
+//go:generate go tool golang.org/x/tools/cmd/stringer -type=DiagnosticSeverity -trimprefix=Diagnostic
+
 const (
 	DiagnosticUnsupported DiagnosticSeverity = 0
 	DiagnosticWarning     DiagnosticSeverity = 1
