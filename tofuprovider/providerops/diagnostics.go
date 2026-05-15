@@ -36,7 +36,8 @@ type Diagnostic interface {
 	Detail() string
 
 	// TODO: AttributePath, which has an awkward model as a sequence of
-	// values of three possible types.
+	// values of three possible types. Once that is added, remember to
+	// also update mockutil.cmpTransformDiagnostic to include it.
 
 	common.Sealed
 }
