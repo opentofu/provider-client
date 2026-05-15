@@ -4,6 +4,8 @@ package providerschema
 // string.
 type DocStringFormat int
 
+//go:generate go tool golang.org/x/tools/cmd/stringer -type=DocStringFormat -trimprefix=DocString
+
 const (
 	DocStringUnsupported DocStringFormat = 0
 
