@@ -127,6 +127,8 @@ var CmpOptions = cmp.Options{
 		},
 		protocmp.Transform(),
 	),
+	cmp.Transformer("comparableDiagnostic", cmpTransformDiagnostic),
+	cmp.Transformer("comparableDiagnostics", cmpTransformDiagnostics),
 }
 
 func buildCmpOptions(opts ...cmp.Option) cmp.Options {
