@@ -97,6 +97,8 @@ type Attribute interface {
 // be used across both the configuration and provider responses.
 type AttributeUsage int
 
+//go:generate go tool golang.org/x/tools/cmd/stringer -type=AttributeUsage -trimprefix=Attribute
+
 const (
 	// AttributeUsageUnsupported represents that the provider returned an
 	// attribute usage that this library does not understand.
