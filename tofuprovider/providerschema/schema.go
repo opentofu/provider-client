@@ -182,6 +182,8 @@ type BlockType interface {
 
 type NestingMode int
 
+//go:generate go tool golang.org/x/tools/cmd/stringer -type=NestingMode -trimprefix=Nesting
+
 const (
 	// NestingInvalid is the zero value of [NestingMode], used when a provider
 	// returns a value that this library does not support.
