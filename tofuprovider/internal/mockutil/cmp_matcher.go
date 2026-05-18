@@ -78,6 +78,13 @@ func (m cmpMatcher) String() string {
 	return eq.String()
 }
 
+// CmpOptions is the base set of [cmp] options that is included by default when
+// you use [Eq], [Diff], [NewComparer], etc.
+//
+// This is exported just in case a caller needs to do something unusual that
+// requires a direct call to one of the [cmp] functions. If possible, prefer
+// to use one of the wrappers elsewhere in this package to make your test
+// more concise.
 var CmpOptions = cmp.Options{
 	ctydebug.CmpOptions,
 	cmp.AllowUnexported(providerschema.DynamicValueIn{}),
