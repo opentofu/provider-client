@@ -32,10 +32,6 @@ func NewProvider(ctx context.Context, plugin *rpcplugin.Plugin, clientProxy any)
 	}, nil
 }
 
-func (p *Provider) ProtocolMajorVersion() int {
-	return 5
-}
-
 func (p *Provider) ClientProxy() any {
 	return p.client
 }
