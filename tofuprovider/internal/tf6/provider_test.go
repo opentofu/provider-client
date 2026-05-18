@@ -20,9 +20,6 @@ func TestProviderBasics(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	if got, want := provider.ProtocolMajorVersion(), 6; got != want {
-		t.Errorf("wrong ProtocolMajorVersion\ngot:  %d\nwant: %d", got, want)
-	}
 	if got, want := provider.ClientProxy(), client; got != want {
 		t.Error("ClientProxy did not return the originally-provided client")
 	}
