@@ -61,4 +61,6 @@ type FunctionError interface {
 	// for the problem along with true, or a meaningless value along with
 	// false if this error is not specific to an individual argument.
 	ArgumentIndex() (int, bool)
+
+	common.Sealed
 }
