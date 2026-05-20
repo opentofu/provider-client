@@ -136,6 +136,7 @@ var CmpOptions = cmp.Options{
 	),
 	cmp.Transformer("comparableDiagnostic", cmpTransformDiagnostic),
 	cmp.Transformer("comparableDiagnostics", cmpTransformDiagnostics),
+	cmp.Transformer("comparableFunctionError", cmpTransformFunctionError),
 }
 
 func buildCmpOptions(opts ...cmp.Option) cmp.Options {
