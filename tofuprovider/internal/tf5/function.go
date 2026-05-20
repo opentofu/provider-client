@@ -52,7 +52,7 @@ func prepareFunctionArgs(args []providerschema.DynamicValueIn) ([]*tfplugin5.Dyn
 
 type callFunctionResponse struct {
 	proto *tfplugin5.CallFunction_Response
-	common.Sealed
+	common.SealedImpl
 }
 
 // Error implements providerops.CallFunctionResponse.
@@ -73,6 +73,7 @@ func (c callFunctionResponse) Result() providerschema.DynamicValueOut {
 
 type functionError struct {
 	proto *tfplugin5.FunctionError
+	common.SealedImpl
 }
 
 // ArgumentIndex implements providerops.FunctionError.
