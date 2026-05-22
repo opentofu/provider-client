@@ -3,6 +3,8 @@ package providerops
 import (
 	grpcCodes "google.golang.org/grpc/codes"
 	grpcStatus "google.golang.org/grpc/status"
+
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 )
 
 // IsUnimplementedErr returns true if the given error represents "operation not
@@ -15,17 +17,13 @@ import (
 // [tofuprovider.Provider]. Errors obtained from other locations produce
 // unspecified results.
 func IsUnimplementedErr(err error) bool {
-	// We'll try to see if this is a gRPC "unimplemented" error. This
-	// function returns codes.Unimplemented only if the given error
-	// is based on a gRPC status with that code.
+	// The following matches all of the error values we expect that our own
+	// tofuprovider.Provider implementations could return.
 	switch {
 	case grpcStatus.Code(err) == grpcCodes.Unimplemented:
 		return true
-
-		// (if we have protocol implementations that are not gRPC-based in
-		// future then we should add additional cases to catch whatever
-		// they return to represent "unimplemented" here.)
-
+	case err == error(common.ErrUnimplemented):
+		return true
 	default:
 		return false
 	}
