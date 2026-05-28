@@ -8,6 +8,7 @@ import (
 
 	"github.com/opentofu/provider-client/tofuprovider"
 	"github.com/opentofu/provider-client/tofuprovider/providerops"
+	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 )
 
 func main() {
@@ -38,7 +39,20 @@ func main() {
 	ephemeralResourceTypes := maps.Collect(schema.EphemeralResourceTypeSchemas())
 	functions := maps.Collect(schema.FunctionSignatures())
 
+	identityResp, err := provider.GetIdentitySchemas(ctx, &providerops.GetIdentitySchemasRequest{})
+	var identitySchemas map[string]providerschema.IdentitySchema
+	switch {
+	case providerops.IsUnimplementedErr(err):
+		// Older providers don't implement the resource identity RPC.
+	case err != nil:
+		fmt.Fprintf(os.Stderr, "Identity schemas request failed: %s\n", err)
+		os.Exit(1)
+	default:
+		identitySchemas = maps.Collect(identityResp.IdentitySchemas())
+	}
+
 	printList("Managed Resource Types", managedResourceTypes)
+	printList("Managed Resource Types with Identity", identitySchemas)
 	printList("Data Resource Types", dataResourceTypes)
 	printList("Ephemeral Resource Types", ephemeralResourceTypes)
 	printList("Functions", functions)
