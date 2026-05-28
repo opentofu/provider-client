@@ -66,6 +66,37 @@ type Provider interface {
 	// schema.
 	UpgradeManagedResourceState(ctx context.Context, req *providerops.UpgradeManagedResourceStateRequest) (providerops.UpgradeManagedResourceStateResponse, error)
 
+	// GetIdentitySchemas requests the identity schemas for every managed
+	// resource type that the provider supports identifying.
+	//
+	// The schemas returned describe the shape of the resource-identity
+	// data the provider produces and consumes through the various
+	// resource-identity-aware operations. The identity schema for a
+	// resource type is distinct from, and versioned independently of,
+	// the main resource schema returned by [Provider.GetProviderSchema].
+	//
+	// Older providers may not implement this RPC. Callers should treat
+	// the provider as having no resource identity support if this method
+	// returns an error that causes [providerops.IsUnimplementedErr] to
+	// return true.
+	GetIdentitySchemas(ctx context.Context, req *providerops.GetIdentitySchemasRequest) (providerops.GetIdentitySchemasResponse, error)
+
+	// UpgradeIdentity is the resource-identity counterpart of
+	// [Provider.UpgradeManagedResourceState], asking the provider to
+	// transform some previously-saved resource identity data so that it
+	// is valid against the current identity schema for the same managed
+	// resource type.
+	//
+	// As with state upgrade, the client cannot decode the prior identity
+	// data itself because it has no access to historical identity schemas;
+	// the provider is responsible for interpreting the raw JSON.
+	//
+	// Older providers may not implement this RPC. Callers should treat
+	// the provider as having no resource identity support if this method
+	// returns an error that causes [providerops.IsUnimplementedErr] to
+	// return true.
+	UpgradeIdentity(ctx context.Context, req *providerops.UpgradeIdentityRequest) (providerops.UpgradeIdentityResponse, error)
+
 	// ReadManagedResource trades a previously-saved state object of a
 	// managed resource type for a new object updated to match the current
 	// configuration of the remote object.
