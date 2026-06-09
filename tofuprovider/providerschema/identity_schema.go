@@ -50,14 +50,15 @@ type IdentityAttribute interface {
 	// for the description string.
 	DocDescription() (string, DocStringFormat)
 
-	// IsRequiredForImport returns true if a caller using this attribute
-	// to identify a resource for import must supply a value for it.
-	IsRequiredForImport() bool
-
-	// IsOptionalForImport returns true if a caller using this attribute
-	// to identify a resource for import may supply a value for it but
-	// may also omit it.
-	IsOptionalForImport() bool
+	// ImportUsage describes how this attribute is used when preparing
+	// an object for calling [Provider.ImportManagedResourceState].
+	//
+	// The result is one of [AttributeRequired], [AttributeOptional], or
+	// [AttributeUsageUnsupported]. The computed-related usage values are
+	// never returned here because they describe only objects that can be
+	// returned in the result of a provider call, which does not apply to
+	// the identity values a caller supplies during import.
+	ImportUsage() AttributeUsage
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol

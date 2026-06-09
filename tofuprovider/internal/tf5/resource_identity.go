@@ -87,12 +87,15 @@ func (a identityAttribute) DocDescription() (string, providerschema.DocStringFor
 	return a.proto.Description, providerschema.DocStringMarkdown
 }
 
-func (a identityAttribute) IsRequiredForImport() bool {
-	return a.proto.RequiredForImport
-}
-
-func (a identityAttribute) IsOptionalForImport() bool {
-	return a.proto.OptionalForImport
+func (a identityAttribute) ImportUsage() providerschema.AttributeUsage {
+	switch {
+	case a.proto.RequiredForImport:
+		return providerschema.AttributeRequired
+	case a.proto.OptionalForImport:
+		return providerschema.AttributeOptional
+	default:
+		return providerschema.AttributeUsageUnsupported
+	}
 }
 
 func (p *Provider) UpgradeIdentity(ctx context.Context, req *providerops.UpgradeIdentityRequest) (providerops.UpgradeIdentityResponse, error) {
