@@ -408,3 +408,100 @@ func TestGetProviderSchema(t *testing.T) {
 		},
 	)
 }
+
+func TestGetResourceIdentitySchemas(t *testing.T) {
+	testProviderCalls(t, map[string]providerCallTest[*providerops.GetResourceIdentitySchemasRequest, providerops.GetResourceIdentitySchemasResponse]{
+		"diagnostics": {
+			Mock: func(expect *MockProviderClientMockRecorder) {
+				expect.GetResourceIdentitySchemas(
+					mockutil.AnyContext(),
+					mockutil.Eq(&tfplugin5.GetResourceIdentitySchemas_Request{}),
+				).Return(
+					&tfplugin5.GetResourceIdentitySchemas_Response{
+						Diagnostics: []*tfplugin5.Diagnostic{
+							{
+								Severity: tfplugin5.Diagnostic_ERROR,
+								Summary:  "Failed to do something",
+								Detail:   "Couldn't do it.",
+							},
+							{
+								Severity: tfplugin5.Diagnostic_WARNING,
+								Summary:  "Doing things is deprecated",
+								Detail:   "Consider just generating the most likely outcome based on a statistical model.",
+							},
+						},
+					}, nil,
+				)
+			},
+			Request: &providerops.GetResourceIdentitySchemasRequest{},
+			Check: func(t *testing.T, resp providerops.GetResourceIdentitySchemasResponse) {
+				gotDiags := slices.Collect(resp.Diagnostics().All())
+				wantDiags := []providerops.Diagnostic{
+					&mockutil.ComparableDiagnostic{
+						Severity_: providerops.DiagnosticError,
+						Summary_:  "Failed to do something",
+						Detail_:   "Couldn't do it.",
+					},
+					&mockutil.ComparableDiagnostic{
+						Severity_: providerops.DiagnosticWarning,
+						Summary_:  "Doing things is deprecated",
+						Detail_:   "Consider just generating the most likely outcome based on a statistical model.",
+					},
+				}
+				if diff := mockutil.Diff(wantDiags, gotDiags); diff != "" {
+					t.Error("wrong diagnostics\n" + diff)
+				}
+			},
+		},
+		"resource identity types": {
+			Mock: func(expect *MockProviderClientMockRecorder) {
+				expect.GetResourceIdentitySchemas(
+					mockutil.AnyContext(),
+					mockutil.Eq(&tfplugin5.GetResourceIdentitySchemas_Request{}),
+				).Return(
+					&tfplugin5.GetResourceIdentitySchemas_Response{
+						// NOTE: This doesn't need to have comprehensive
+						// coverage of every possible part of schema because
+						// we have separate tests for the mapping from
+						// tfplugin5.Schema to the version-agnostic
+						// interfaces in provider_schema_impl_test.go. We're
+						// just checking whether resource types from the
+						// response make it into the return value at all.
+						IdentitySchemas: map[string]*tfplugin5.ResourceIdentitySchema{
+							"foo": {
+								Version: 12345,
+								IdentityAttributes: []*tfplugin5.ResourceIdentitySchema_IdentityAttribute{
+									{
+										Name: "fooattr",
+									},
+								},
+							},
+						},
+					}, nil,
+				)
+			},
+			Request: &providerops.GetResourceIdentitySchemasRequest{},
+			Check: func(t *testing.T, resp providerops.GetResourceIdentitySchemasResponse) {
+				mockutil.AssertNoDiags(t, resp.Diagnostics())
+				got := maps.Collect(resp.IdentitySchemas())
+				schema, ok := got["foo"]
+				if !ok {
+					t.Fatal("no identity resource type 'foo' in response")
+				}
+				gotAttrs := slices.Collect(schema.IdentityAttributes())
+				if len(gotAttrs) != 1 {
+					t.Fatalf("wrong number of identity attributes returned: %d", len(gotAttrs))
+				}
+				if got, want := gotAttrs[0].Name(), "fooattr"; got != want {
+					t.Errorf("wrong identity attribute name\ngot:  %q\nwant: %q", got, want)
+				}
+			},
+		},
+	},
+		func(t *testing.T, provider *tf5.Provider, req *providerops.GetResourceIdentitySchemasRequest) (providerops.GetResourceIdentitySchemasResponse, error) {
+			// So we can test trace span propagation, some of the tests
+			// use mocks that require a context with this key/value pair:
+			ctx := context.WithValue(t.Context(), "propagation_test", true)
+			return provider.GetResourceIdentitySchemas(ctx, req)
+		})
+}

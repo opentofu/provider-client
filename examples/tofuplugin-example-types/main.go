@@ -32,15 +32,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	identityResp, err := provider.GetResourceIdentitySchemas(ctx, &providerops.GetResourceIdentitySchemasRequest{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Resource identity schemas request failed: %s\n", err)
+		os.Exit(1)
+	}
+
 	schema := resp.ProviderSchema()
 	managedResourceTypes := maps.Collect(schema.ManagedResourceTypeSchemas())
 	dataResourceTypes := maps.Collect(schema.DataResourceTypeSchemas())
 	ephemeralResourceTypes := maps.Collect(schema.EphemeralResourceTypeSchemas())
+	resourceIdentityTypes := maps.Collect(identityResp.IdentitySchemas())
 	functions := maps.Collect(schema.FunctionSignatures())
 
 	printList("Managed Resource Types", managedResourceTypes)
 	printList("Data Resource Types", dataResourceTypes)
 	printList("Ephemeral Resource Types", ephemeralResourceTypes)
+	printList("Identity Resource Types", resourceIdentityTypes)
 	printList("Functions", functions)
 	fmt.Printf("\n")
 }

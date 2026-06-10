@@ -30,6 +30,8 @@ type Provider interface {
 	// This method should be called before calling [ConfigureProvider].
 	GetProviderSchema(ctx context.Context, req *providerops.GetProviderSchemaRequest) (providerops.GetProviderSchemaResponse, error)
 
+	GetResourceIdentitySchemas(ctx context.Context, req *providerops.GetResourceIdentitySchemasRequest) (providerops.GetResourceIdentitySchemasResponse, error)
+
 	// ValidateProviderConfig tests whether a given provider configuration
 	// object is acceptable per the provider's internally-implemented
 	// validation rules.
