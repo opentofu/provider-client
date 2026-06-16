@@ -75,6 +75,11 @@ func (p providerSchema) ManagedResourceTypeSchemas() iter.Seq2[string, providers
 	return namedSchemasSeq(p.proto.ResourceSchemas)
 }
 
+// ListResourceSchemas implements providerschema.ProviderSchema.
+func (p providerSchema) ListResourceSchemas() iter.Seq2[string, providerschema.Schema] {
+	return namedSchemasSeq(p.proto.ListResourceSchemas)
+}
+
 // ProviderConfigSchema implements providerschema.ProviderSchema.
 func (p providerSchema) ProviderConfigSchema() providerschema.Schema {
 	if p.proto.Provider == nil {

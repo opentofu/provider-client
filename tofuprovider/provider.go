@@ -170,6 +170,10 @@ type Provider interface {
 	// such as only partially completing a request.
 	GracefulStop(ctx context.Context) error
 
+	// ListResource is called when the provider must list instances of a managed
+	// resource type that satisfy a user-provided request.
+	ListResource(ctx context.Context, req *providerops.ListResourceRequest) (providerops.ListResourceResponse, error)
+
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol
 	// features.

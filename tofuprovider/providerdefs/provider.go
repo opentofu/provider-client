@@ -118,6 +118,11 @@ func (Provider) ValidateProviderConfig(ctx context.Context, req *providerops.Val
 	return nil, common.ErrUnimplemented
 }
 
+// ListResource implements [tofuprovider.Provider].
+func (Provider) ListResource(ctx context.Context, req *providerops.ListResourceRequest) (providerops.ListResourceResponse, error) {
+	return nil, common.ErrUnimplemented
+}
+
 // GRPCPluginProvider is a base implementation of
 // [tofuprovider.GRPCPluginProvider] intended to be embedded in external
 // implementations of that interface, providing default implementations of
