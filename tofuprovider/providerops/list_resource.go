@@ -1,7 +1,7 @@
 package providerops
 
 import (
-	"iter"
+	"context"
 
 	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 	"github.com/opentofu/provider-client/tofuprovider/providerschema"
@@ -29,7 +29,22 @@ type ListResourceEvent interface {
 }
 
 type ListResourceResponse interface {
-	Resources() iter.Seq2[ListResourceEvent, error]
+	// ReadResult reads the next result from the stream. It returns io.EOF
+	// once all results have been read.
+	//
+	// The context is accepted so that non-streaming implementations (e.g.
+	// ones backed by traditional pagination) can perform fallible, possibly
+	// cancellable work per read.
+	ReadResult(ctx context.Context) (ListResourceEvent, error)
+
+	// Close terminates the underlying stream. Callers must call Close once
+	// they are done reading, especially if they stopped before reaching io.EOF,
+	// otherwise the stream may stay active until the context passed to
+	// ListResource is cancelled.
+	//
+	// The context and error result are accepted so that non-streaming
+	// implementations can do fallible, possibly cancellable cleanup.
+	Close(ctx context.Context) error
 
 	common.Sealed
 }

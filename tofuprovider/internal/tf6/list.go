@@ -2,10 +2,7 @@ package tf6
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
-	"iter"
 
 	"google.golang.org/grpc"
 
@@ -28,48 +25,56 @@ func (p *Provider) ListResource(ctx context.Context, req *providerops.ListResour
 		Limit:                 req.Limit,
 	}
 
-	protoResp, err := p.client.ListResource(ctx, protoReq)
+	// Use a cancelable context so Close can terminate the stream even if the
+	// caller stops reading before reaching the end.
+	streamCtx, cancel := context.WithCancel(ctx)
+	protoResp, err := p.client.ListResource(streamCtx, protoReq)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
-	return listResourceResponse{proto: protoResp}, nil
+	return &listResourceResponse{proto: protoResp, cancel: cancel}, nil
 }
 
 type listResourceResponse struct {
-	proto grpc.ServerStreamingClient[tfplugin6.ListResource_Event]
+	proto  grpc.ServerStreamingClient[tfplugin6.ListResource_Event]
+	cancel context.CancelFunc
 
 	common.SealedImpl
 }
 
-func (r listResourceResponse) Resources() iter.Seq2[providerops.ListResourceEvent, error] {
-	return func(yield func(providerops.ListResourceEvent, error) bool) {
-		for {
-			res, err := r.proto.Recv()
-			if errors.Is(err, io.EOF) {
-				return
-			}
-			if err != nil {
-				yield(nil, err)
-				return
-			}
-
-			item := listResourceEvent{
-				diagnostics: diagnostics{proto: res.GetDiagnostic()},
-				displayName: res.GetDisplayName(),
-			}
-
-			// TODO Fetch identity data
-
-			if res := res.GetResourceObject(); res != nil {
-				item.resource = dynamicValue{proto: res}
-			}
-
-			if !yield(item, nil) {
-				return
-			}
-		}
+// ReadResult ignores its context because the gRPC stream is already bound to
+// the context passed to ListResource; the parameter exists only for
+// non-streaming implementations of the interface.
+func (r *listResourceResponse) ReadResult(_ context.Context) (providerops.ListResourceEvent, error) {
+	// Recv returns io.EOF at the end of the stream, which we pass through to
+	// the caller as the loop-termination signal.
+	res, err := r.proto.Recv()
+	if err != nil {
+		return nil, err
 	}
+
+	item := listResourceEvent{
+		diagnostics: diagnostics{proto: res.GetDiagnostic()},
+		displayName: res.GetDisplayName(),
+	}
+
+	// TODO Fetch identity data
+
+	if res := res.GetResourceObject(); res != nil {
+		item.resource = dynamicValue{proto: res}
+	}
+
+	return item, nil
+}
+
+// Close ignores its context and never errors because terminating a gRPC
+// stream is just a local context cancellation; the signature exists for
+// non-streaming implementations that may do fallible cleanup.
+func (r *listResourceResponse) Close(_ context.Context) error {
+	r.cancel()
+	return nil
 }
 
 type listResourceEvent struct {

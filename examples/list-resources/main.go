@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -107,7 +109,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	for res, err := range list.Resources() {
+	defer list.Close(ctx)
+
+	for {
+		res, err := list.ReadResult(ctx)
+		if errors.Is(err, io.EOF) {
+			break
+		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			os.Exit(1)

@@ -2,6 +2,7 @@ package tf5_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"slices"
 	"testing"
@@ -72,8 +73,13 @@ func TestListResourceImpl(t *testing.T) {
 					),
 				},
 				Check: func(t *testing.T, resp providerops.ListResourceResponse) {
+					defer resp.Close(nil)
 					var resources []providerops.ListResourceEvent
-					for ev, err := range resp.Resources() {
+					for {
+						ev, err := resp.ReadResult(nil)
+						if errors.Is(err, io.EOF) {
+							break
+						}
 						if err != nil {
 							t.Fatalf("error reading resources: %s", err)
 						}
