@@ -33,9 +33,9 @@ func (f *fakeListReponseStream) Recv() (*tfplugin6.ListResource_Event, error) {
 	return ev, nil
 }
 
-func TestListResourceImpl(t *testing.T) {
+func TestListManagedResourcesImpl(t *testing.T) {
 	testProviderCalls(t,
-		map[string]providerCallTest[*providerops.ListResourceRequest, providerops.ListResourceResponse]{
+		map[string]providerCallTest[*providerops.ListManagedResourcesRequest, providerops.ListManagedResourcesResponse]{
 			"list resource": {
 				Mock: func(expect *MockProviderClientMockRecorder) {
 					expect.ListResource(
@@ -63,7 +63,7 @@ func TestListResourceImpl(t *testing.T) {
 						},
 					}, nil)
 				},
-				Request: &providerops.ListResourceRequest{
+				Request: &providerops.ListManagedResourcesRequest{
 					TypeName:              "test_type",
 					Limit:                 1234,
 					IncludeResourceObject: true,
@@ -72,9 +72,9 @@ func TestListResourceImpl(t *testing.T) {
 						cty.Object(map[string]cty.Type{"foo": cty.String}),
 					),
 				},
-				Check: func(t *testing.T, resp providerops.ListResourceResponse) {
+				Check: func(t *testing.T, resp providerops.ListManagedResourcesResponse) {
 					defer resp.Close(nil)
-					var resources []providerops.ListResourceEvent
+					var resources []providerops.ListManagedResourcesEvent
 					for {
 						ev, err := resp.ReadResult(nil)
 						if errors.Is(err, io.EOF) {
@@ -113,10 +113,10 @@ func TestListResourceImpl(t *testing.T) {
 				},
 			},
 		},
-		func(t *testing.T, provider *tf6.Provider, req *providerops.ListResourceRequest) (providerops.ListResourceResponse, error) {
+		func(t *testing.T, provider *tf6.Provider, req *providerops.ListManagedResourcesRequest) (providerops.ListManagedResourcesResponse, error) {
 			// So we can test trace span propagation, some of the tests
 			// use mocks that require a context with this key/value pair:
 			ctx := context.WithValue(t.Context(), "propagation_test", true)
-			return provider.ListResource(ctx, req)
+			return provider.ListManagedResources(ctx, req)
 		})
 }

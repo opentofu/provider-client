@@ -40,7 +40,7 @@ func main() {
 	}
 
 	var listSchema providerschema.Schema
-	for name, v := range resp.ProviderSchema().ListResourceSchemas() {
+	for name, v := range resp.ProviderSchema().ManagedResourceTypeListSchemas() {
 		if name == resourceTypeName {
 			listSchema = v
 			break
@@ -99,7 +99,7 @@ func main() {
 
 	fmt.Printf("Listing %s in region %s:\n", resourceTypeName, listConfigValue.GetAttr("region").AsString())
 
-	list, err := provider.ListResource(ctx, &providerops.ListResourceRequest{
+	list, err := provider.ListManagedResources(ctx, &providerops.ListManagedResourcesRequest{
 		TypeName: resourceTypeName,
 		Config:   providerschema.NewDynamicValue(listConfigValue, listConfigType),
 		Limit:    10000,

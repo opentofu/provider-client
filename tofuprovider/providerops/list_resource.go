@@ -7,7 +7,7 @@ import (
 	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 )
 
-type ListResourceRequest struct {
+type ListManagedResourcesRequest struct {
 	// Config is the list ConfigSchema-based configuration data.
 	Config providerschema.DynamicValueIn
 	// TypeName is the list resource type name.
@@ -20,7 +20,7 @@ type ListResourceRequest struct {
 	Limit int64
 }
 
-type ListResourceEvent interface {
+type ListManagedResourcesEvent interface {
 	DisplayName() string
 	Resource() providerschema.DynamicValueOut
 	Diagnostics() Diagnostics
@@ -28,19 +28,19 @@ type ListResourceEvent interface {
 	common.Sealed
 }
 
-type ListResourceResponse interface {
+type ListManagedResourcesResponse interface {
 	// ReadResult reads the next result from the stream. It returns io.EOF
 	// once all results have been read.
 	//
 	// The context is accepted so that non-streaming implementations (e.g.
 	// ones backed by traditional pagination) can perform fallible, possibly
 	// cancellable work per read.
-	ReadResult(ctx context.Context) (ListResourceEvent, error)
+	ReadResult(ctx context.Context) (ListManagedResourcesEvent, error)
 
 	// Close terminates the underlying stream. Callers must call Close once
 	// they are done reading, especially if they stopped before reaching io.EOF,
 	// otherwise the stream may stay active until the context passed to
-	// ListResource is cancelled.
+	// ListManagedResources is cancelled.
 	//
 	// The context and error result are accepted so that non-streaming
 	// implementations can do fallible, possibly cancellable cleanup.

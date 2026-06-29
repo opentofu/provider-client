@@ -61,9 +61,10 @@ type ProviderSchema interface {
 	// OpenTofu language features are not widely known in the community.
 	ProviderMetaSchema() Schema
 
-	// ListResourceSchemas returns an iterator over all list resource type names and their schemas supported by the
-	// provider.
-	ListResourceSchemas() iter.Seq2[string, Schema]
+	// ManagedResourceTypeListSchemas returns an iterator over the managed
+	// resource type names that support the ListManagedResources operation and
+	// the schema to use for each one.
+	ManagedResourceTypeListSchemas() iter.Seq2[string, Schema]
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol

@@ -118,8 +118,8 @@ func (Provider) ValidateProviderConfig(ctx context.Context, req *providerops.Val
 	return nil, common.ErrUnimplemented
 }
 
-// ListResource implements [tofuprovider.Provider].
-func (Provider) ListResource(ctx context.Context, req *providerops.ListResourceRequest) (providerops.ListResourceResponse, error) {
+// ListManagedResources implements [tofuprovider.Provider].
+func (Provider) ListManagedResources(ctx context.Context, req *providerops.ListManagedResourcesRequest) (providerops.ListManagedResourcesResponse, error) {
 	return nil, common.ErrUnimplemented
 }
 

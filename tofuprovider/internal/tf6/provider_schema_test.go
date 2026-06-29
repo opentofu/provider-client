@@ -390,7 +390,7 @@ func TestGetProviderSchema(t *testing.T) {
 				Request: &providerops.GetProviderSchemaRequest{},
 				Check: func(t *testing.T, resp providerops.GetProviderSchemaResponse) {
 					mockutil.AssertNoDiags(t, resp.Diagnostics())
-					got := maps.Collect(resp.ProviderSchema().ListResourceSchemas())
+					got := maps.Collect(resp.ProviderSchema().ManagedResourceTypeListSchemas())
 					schema, ok := got["foo"]
 					if !ok {
 						t.Fatal("no list resource type 'foo' in response")

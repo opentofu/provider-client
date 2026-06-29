@@ -169,9 +169,9 @@ func (p ProviderSchema) ManagedResourceTypeSchemas() iter.Seq2[string, providers
 	return func(func(string, providerschema.Schema) bool) {}
 }
 
-// ListResourceSchemas implements [providerschema.ProviderSchema] by
+// ManagedResourceTypeListSchemas implements [providerschema.ProviderSchema] by
 // reporting no resource types at all.
-func (p ProviderSchema) ListResourceSchemas() iter.Seq2[string, providerschema.Schema] {
+func (p ProviderSchema) ManagedResourceTypeListSchemas() iter.Seq2[string, providerschema.Schema] {
 	return func(func(string, providerschema.Schema) bool) {}
 }
 

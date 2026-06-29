@@ -357,6 +357,61 @@ func TestGetProviderSchema(t *testing.T) {
 					}
 				},
 			},
+			"list resource types": {
+				Mock: func(expect *MockProviderClientMockRecorder) {
+					expect.GetSchema(
+						mockutil.AnyContext(),
+						mockutil.Eq(&tfplugin5.GetProviderSchema_Request{}),
+					).Return(
+						&tfplugin5.GetProviderSchema_Response{
+							// NOTE: This doesn't need to have comprehensive
+							// coverage of every possible part of schema because
+							// we have separate tests for the mapping from
+							// tfplugin5.Schema to the version-agnostic
+							// interfaces in provider_schema_impl_test.go. We're
+							// just checking whether resource types from the
+							// response make it into the return value at all.
+							ListResourceSchemas: map[string]*tfplugin5.Schema{
+								"foo": {
+									Block: &tfplugin5.Schema_Block{
+										Attributes: []*tfplugin5.Schema_Attribute{
+											{
+												Name:     "name",
+												Type:     mockutil.JSON("string"),
+												Required: true,
+											},
+										},
+									},
+								},
+							},
+						}, nil,
+					)
+				},
+				Request: &providerops.GetProviderSchemaRequest{},
+				Check: func(t *testing.T, resp providerops.GetProviderSchemaResponse) {
+					mockutil.AssertNoDiags(t, resp.Diagnostics())
+					got := maps.Collect(resp.ProviderSchema().ManagedResourceTypeListSchemas())
+					schema, ok := got["foo"]
+					if !ok {
+						t.Fatal("no list resource type 'foo' in response")
+					}
+					gotAttrs := maps.Collect(schema.Attributes())
+					attrS, ok := gotAttrs["name"]
+					if !ok {
+						t.Fatal("no attribute named 'name' in response")
+					}
+					if got, want := attrS.Usage(), providerschema.AttributeRequired; got != want {
+						t.Errorf("wrong attribute usage\ngot:  %s\nwant: %s", got, want)
+					}
+					ty, err := attrS.Type().AsCtyType()
+					if err != nil {
+						t.Fatalf("invalid attribute type: %s", err)
+					}
+					if got, want := ty, cty.String; got != want {
+						t.Errorf("wrong attribute type\ngot:  %#v\nwant: %#v", got, want)
+					}
+				},
+			},
 			"functions": {
 				Mock: func(expect *MockProviderClientMockRecorder) {
 					expect.GetSchema(

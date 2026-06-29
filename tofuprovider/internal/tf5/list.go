@@ -12,8 +12,8 @@ import (
 	"github.com/opentofu/provider-client/tofuprovider/providerschema"
 )
 
-// ListResource implements tofuprovider.ListResource.
-func (p *Provider) ListResource(ctx context.Context, req *providerops.ListResourceRequest) (providerops.ListResourceResponse, error) {
+// ListManagedResources implements tofuprovider.ListManagedResources.
+func (p *Provider) ListManagedResources(ctx context.Context, req *providerops.ListManagedResourcesRequest) (providerops.ListManagedResourcesResponse, error) {
 	configVal, err := makeDynamicValueMsgpack(req.Config)
 	if err != nil {
 		return nil, fmt.Errorf("invalid Config value: %w", err)
@@ -32,23 +32,23 @@ func (p *Provider) ListResource(ctx context.Context, req *providerops.ListResour
 		return nil, err
 	}
 
-	return &listResourceResponse{proto: protoResp, cancel: cancel}, nil
+	return &listManagedResourcesResponse{proto: protoResp, cancel: cancel}, nil
 }
 
-type listResourceResponse struct {
+type listManagedResourcesResponse struct {
 	proto  grpc.ServerStreamingClient[tfplugin5.ListResource_Event]
 	cancel context.CancelFunc
 
 	common.SealedImpl
 }
 
-func (r *listResourceResponse) ReadResult(_ context.Context) (providerops.ListResourceEvent, error) {
+func (r *listManagedResourcesResponse) ReadResult(_ context.Context) (providerops.ListManagedResourcesEvent, error) {
 	res, err := r.proto.Recv()
 	if err != nil {
 		return nil, err
 	}
 
-	item := listResourceEvent{
+	item := listManagedResourcesEvent{
 		diagnostics: diagnostics{proto: res.GetDiagnostic()},
 		displayName: res.GetDisplayName(),
 	}
@@ -62,12 +62,12 @@ func (r *listResourceResponse) ReadResult(_ context.Context) (providerops.ListRe
 	return item, nil
 }
 
-func (r *listResourceResponse) Close(_ context.Context) error {
+func (r *listManagedResourcesResponse) Close(_ context.Context) error {
 	r.cancel()
 	return nil
 }
 
-type listResourceEvent struct {
+type listManagedResourcesEvent struct {
 	displayName string
 	resource    providerschema.DynamicValueOut
 	diagnostics providerops.Diagnostics
@@ -75,6 +75,6 @@ type listResourceEvent struct {
 	common.SealedImpl
 }
 
-func (i listResourceEvent) DisplayName() string                      { return i.displayName }
-func (i listResourceEvent) Resource() providerschema.DynamicValueOut { return i.resource }
-func (i listResourceEvent) Diagnostics() providerops.Diagnostics     { return i.diagnostics }
+func (i listManagedResourcesEvent) DisplayName() string                      { return i.displayName }
+func (i listManagedResourcesEvent) Resource() providerschema.DynamicValueOut { return i.resource }
+func (i listManagedResourcesEvent) Diagnostics() providerops.Diagnostics     { return i.diagnostics }
