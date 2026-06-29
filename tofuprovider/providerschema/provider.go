@@ -2,11 +2,10 @@ package providerschema
 
 import (
 	"iter"
-
-	"github.com/opentofu/provider-client/tofuprovider/internal/common"
-
 	// For links in documentation comments:
 	_ "maps"
+
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 )
 
 // ProviderSchema represents the overall schema for an entire provider,
@@ -61,6 +60,11 @@ type ProviderSchema interface {
 	// a widely-used provider protocol feature, and its corresponding
 	// OpenTofu language features are not widely known in the community.
 	ProviderMetaSchema() Schema
+
+	// ManagedResourceTypeListSchemas returns an iterator over the managed
+	// resource type names that support the ListManagedResources operation and
+	// the schema to use for each one.
+	ManagedResourceTypeListSchemas() iter.Seq2[string, Schema]
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol

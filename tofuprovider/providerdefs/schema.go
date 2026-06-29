@@ -169,6 +169,12 @@ func (p ProviderSchema) ManagedResourceTypeSchemas() iter.Seq2[string, providers
 	return func(func(string, providerschema.Schema) bool) {}
 }
 
+// ManagedResourceTypeListSchemas implements [providerschema.ProviderSchema] by
+// reporting no resource types at all.
+func (p ProviderSchema) ManagedResourceTypeListSchemas() iter.Seq2[string, providerschema.Schema] {
+	return func(func(string, providerschema.Schema) bool) {}
+}
+
 // ProviderConfigSchema implements [providerschema.ProviderSchema] by reporting
 // an empty schema.
 func (p ProviderSchema) ProviderConfigSchema() providerschema.Schema {
