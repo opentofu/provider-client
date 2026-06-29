@@ -89,6 +89,8 @@ func (a identityAttribute) DocDescription() (string, providerschema.DocStringFor
 
 func (a identityAttribute) ImportUsage() providerschema.AttributeUsage {
 	switch {
+	case a.proto.RequiredForImport && a.proto.OptionalForImport:
+		return providerschema.AttributeUsageUnsupported
 	case a.proto.RequiredForImport:
 		return providerschema.AttributeRequired
 	case a.proto.OptionalForImport:
