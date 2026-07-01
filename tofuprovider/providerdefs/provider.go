@@ -123,6 +123,16 @@ func (Provider) ListManagedResources(ctx context.Context, req *providerops.ListM
 	return nil, common.ErrUnimplemented
 }
 
+// GetIdentitySchemas implements [tofuprovider.Provider].
+func (p Provider) GetIdentitySchemas(ctx context.Context, req *providerops.GetIdentitySchemasRequest) (providerops.GetIdentitySchemasResponse, error) {
+	return nil, common.ErrUnimplemented
+}
+
+// UpgradeIdentity implements [tofuprovider.Provider].
+func (p Provider) UpgradeIdentity(ctx context.Context, req *providerops.UpgradeIdentityRequest) (providerops.UpgradeIdentityResponse, error) {
+	return nil, common.ErrUnimplemented
+}
+
 // GRPCPluginProvider is a base implementation of
 // [tofuprovider.GRPCPluginProvider] intended to be embedded in external
 // implementations of that interface, providing default implementations of
