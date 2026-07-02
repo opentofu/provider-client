@@ -23,6 +23,7 @@ type ListManagedResourcesRequest struct {
 type ListManagedResourcesEvent interface {
 	DisplayName() string
 	Resource() providerschema.DynamicValueOut
+	Identity() providerschema.IdentityData
 	Diagnostics() Diagnostics
 
 	common.Sealed

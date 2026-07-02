@@ -133,3 +133,12 @@ func (u upgradeIdentityResponse) UpgradedIdentity() providerschema.DynamicValueO
 	}
 	return dynamicValue{proto: u.proto.UpgradedIdentity.IdentityData}
 }
+
+type resourceIdentityData struct {
+	proto *tfplugin5.ResourceIdentityData
+	common.SealedImpl
+}
+
+func (r resourceIdentityData) IdentityData() providerschema.DynamicValueOut {
+	return dynamicValue{proto: r.proto.GetIdentityData()}
+}

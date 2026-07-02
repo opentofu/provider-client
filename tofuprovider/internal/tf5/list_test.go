@@ -59,6 +59,9 @@ func TestListManagedResourcesImpl(t *testing.T) {
 							{
 								DisplayName:    "resource2",
 								ResourceObject: &tfplugin5.DynamicValue{Msgpack: mockutil.MsgPack(map[string]string{"id": "123"})},
+								Identity: &tfplugin5.ResourceIdentityData{
+									IdentityData: &tfplugin5.DynamicValue{Msgpack: mockutil.MsgPack(map[string]string{"id": "4321"})},
+								},
 							},
 						},
 					}, nil)
@@ -109,6 +112,13 @@ func TestListManagedResourcesImpl(t *testing.T) {
 					}
 					if got, expected := resourceObject.GetAttr("id").AsString(), "123"; got != expected {
 						t.Errorf("wrong resource object foo field: got %q, want %q", got, expected)
+					}
+					identity, err := resources[1].Identity().IdentityData().AsCtyValue(cty.Object(map[string]cty.Type{"id": cty.String}))
+					if err != nil {
+						t.Fatalf("identity data invalid: %s", err)
+					}
+					if got, expected := identity.GetAttr("id").AsString(), "4321"; got != expected {
+						t.Errorf("wrong identity id field: got %q, want %q", got, expected)
 					}
 				},
 			},

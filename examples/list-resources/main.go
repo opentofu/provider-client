@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 
 	"github.com/zclconf/go-cty/cty"
@@ -62,6 +63,31 @@ func main() {
 	resourceType, err := impliedType(resourceSchema)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	identityResp, err := provider.GetIdentitySchemas(ctx, &providerops.GetIdentitySchemasRequest{})
+	var identitySchema providerschema.IdentitySchema
+	switch {
+	case providerops.IsUnimplementedErr(err):
+		// Older providers don't implement the resource identity RPC.
+	case err != nil:
+		fmt.Fprintf(os.Stderr, "Identity schemas request failed: %s\n", err)
+		os.Exit(1)
+	default:
+		s, ok := maps.Collect(identityResp.IdentitySchemas())[resourceTypeName]
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Error: provider has no %s identity schema\n", resourceTypeName)
+			os.Exit(1)
+		}
+		identitySchema = s
+	}
+
+	var identityType cty.Type
+	if identitySchema != nil {
+		identityType, err = identityImpliedType(identitySchema)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	providerConfigType, err := impliedType(resp.ProviderSchema().ProviderConfigSchema())
@@ -129,14 +155,37 @@ func main() {
 
 		fmt.Printf("- display name: %s\n", res.DisplayName())
 
+		if id := res.Identity(); id != nil && identitySchema != nil {
+			idVal, err := id.IdentityData().AsCtyValue(identityType)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("  identity:\n")
+			for k, v := range idVal.AsValueMap() {
+				fmt.Printf("    %s: %s\n", k, v.AsString())
+			}
+		}
+
 		if r := res.Resource(); r != nil {
 			resVal, err := res.Resource().AsCtyValue(resourceType)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf(" %+v\n", resVal)
+			fmt.Printf("  attributes:\n  %+v\n", resVal)
 		}
 	}
+}
+
+func identityImpliedType(schema providerschema.IdentitySchema) (cty.Type, error) {
+	attrTypes := map[string]cty.Type{}
+	for name, attr := range schema.Attributes() {
+		ty, err := attr.Type().AsCtyType()
+		if err != nil {
+			return cty.NilType, fmt.Errorf("identity attribute %q: %w", name, err)
+		}
+		attrTypes[name] = ty
+	}
+	return cty.Object(attrTypes), nil
 }
 
 func impliedType(block providerschema.BlockType) (cty.Type, error) {
