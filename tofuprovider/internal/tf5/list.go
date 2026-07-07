@@ -72,7 +72,7 @@ func (r *listManagedResourcesResponse) Close(_ context.Context) error {
 type listManagedResourcesEvent struct {
 	displayName string
 	resource    providerschema.DynamicValueOut
-	identity    resourceIdentityData
+	identity    providerschema.IdentityData
 	diagnostics providerops.Diagnostics
 
 	common.SealedImpl

@@ -66,6 +66,8 @@ type IdentityAttribute interface {
 }
 
 type IdentityData interface {
+	// IdentityData is the resource identity data of the resource instance.
+	// It should be decoded using [IdentitySchema] and [IdentityAttribute].
 	IdentityData() DynamicValueOut
 
 	// This interface cannot be implemented outside of this module, because
