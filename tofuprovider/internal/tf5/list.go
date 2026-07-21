@@ -53,7 +53,9 @@ func (r *listManagedResourcesResponse) ReadResult(_ context.Context) (providerop
 		displayName: res.GetDisplayName(),
 	}
 
-	// TODO Fetch identity data
+	if identity := res.GetIdentity(); identity != nil {
+		item.identity = resourceIdentityData{proto: identity}
+	}
 
 	if res := res.GetResourceObject(); res != nil {
 		item.resource = dynamicValue{proto: res}
@@ -70,6 +72,7 @@ func (r *listManagedResourcesResponse) Close(_ context.Context) error {
 type listManagedResourcesEvent struct {
 	displayName string
 	resource    providerschema.DynamicValueOut
+	identity    providerschema.IdentityData
 	diagnostics providerops.Diagnostics
 
 	common.SealedImpl
@@ -77,4 +80,5 @@ type listManagedResourcesEvent struct {
 
 func (i listManagedResourcesEvent) DisplayName() string                      { return i.displayName }
 func (i listManagedResourcesEvent) Resource() providerschema.DynamicValueOut { return i.resource }
+func (i listManagedResourcesEvent) Identity() providerschema.IdentityData    { return i.identity }
 func (i listManagedResourcesEvent) Diagnostics() providerops.Diagnostics     { return i.diagnostics }

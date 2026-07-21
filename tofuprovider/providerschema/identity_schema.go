@@ -2,11 +2,10 @@ package providerschema
 
 import (
 	"iter"
-
-	"github.com/opentofu/provider-client/tofuprovider/internal/common"
-
 	// For links in documentation comments:
 	_ "maps"
+
+	"github.com/opentofu/provider-client/tofuprovider/internal/common"
 )
 
 // IdentitySchema describes the structure of the data used to identify a
@@ -59,6 +58,17 @@ type IdentityAttribute interface {
 	// returned in the result of a provider call, which does not apply to
 	// the identity values a caller supplies during import.
 	ImportUsage() AttributeUsage
+
+	// This interface cannot be implemented outside of this module, because
+	// future versions might extend the interface to include new protocol
+	// features.
+	common.Sealed
+}
+
+type IdentityData interface {
+	// IdentityData is the resource identity data of the resource instance.
+	// It should be decoded using [IdentitySchema] and [IdentityAttribute].
+	IdentityData() DynamicValueOut
 
 	// This interface cannot be implemented outside of this module, because
 	// future versions might extend the interface to include new protocol
