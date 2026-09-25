@@ -49,13 +49,6 @@ type ApplyManagedResourceChangeRequest struct {
 	// unspecified.
 	PlannedProviderInternal []byte
 
-	// ProviderMeta is some additional metadata declared in the module where
-	// this resource was declared. This is a rarely-used feature that most
-	// callers should ignore, leaving this field completely unassigned.
-	// When populated the value must be of the type implied by the provider's
-	// ProviderMetaSchema.
-	ProviderMeta providerschema.DynamicValueIn
-
 	// TODO: PlannedNewIdentity
 }
 

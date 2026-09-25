@@ -88,14 +88,6 @@ func (p providerSchema) ProviderConfigSchema() providerschema.Schema {
 	return schema{proto: p.proto.Provider}
 }
 
-// ProviderMetaSchema implements providerschema.ProviderSchema.
-func (p providerSchema) ProviderMetaSchema() providerschema.Schema {
-	if p.proto.ProviderMeta == nil {
-		return nil
-	}
-	return schema{proto: p.proto.ProviderMeta}
-}
-
 type schema struct {
 	proto *tfplugin6.Schema
 	common.SealedImpl

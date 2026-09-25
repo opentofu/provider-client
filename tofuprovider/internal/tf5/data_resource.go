@@ -16,14 +16,10 @@ func (p *Provider) ReadDataResource(ctx context.Context, req *providerops.ReadDa
 	if err != nil {
 		return nil, fmt.Errorf("invalid Config value: %w", err)
 	}
-	providerMetaVal, err := makeDynamicValueMsgpack(req.ProviderMeta)
-	if err != nil {
-		return nil, fmt.Errorf("invalid ProviderMeta value: %w", err)
-	}
 	protoReq := &tfplugin5.ReadDataSource_Request{
 		TypeName:           req.ResourceType,
 		Config:             configVal,
-		ProviderMeta:       providerMetaVal,
+		ProviderMeta:       providerMetaStubValue,
 		ClientCapabilities: prepareClientCapabilities(req.ClientCapabilities),
 	}
 

@@ -27,21 +27,13 @@ func (p *Provider) ApplyManagedResourceChange(ctx context.Context, req *provider
 		return nil, fmt.Errorf("invalid Config value: %w", err)
 	}
 
-	var providerMeta *tfplugin5.DynamicValue
-	if req.ProviderMeta != providerschema.NoDynamicValue {
-		providerMeta, err = makeDynamicValueMsgpack(req.ProviderMeta)
-		if err != nil {
-			return nil, fmt.Errorf("invalid ProviderMeta value: %w", err)
-		}
-	}
-
 	protoReq := &tfplugin5.ApplyResourceChange_Request{
 		TypeName:       req.ResourceType,
 		PriorState:     priorState,
 		PlannedState:   plannedNewState,
 		Config:         config,
 		PlannedPrivate: req.PlannedProviderInternal,
-		ProviderMeta:   providerMeta,
+		ProviderMeta:   providerMetaStubValue,
 	}
 
 	protoResp, err := p.client.ApplyResourceChange(ctx, protoReq)
@@ -86,21 +78,13 @@ func (p *Provider) PlanManagedResourceChange(ctx context.Context, req *providero
 		return nil, fmt.Errorf("invalid Config value: %w", err)
 	}
 
-	var providerMeta *tfplugin5.DynamicValue
-	if req.ProviderMeta != providerschema.NoDynamicValue {
-		providerMeta, err = makeDynamicValueMsgpack(req.ProviderMeta)
-		if err != nil {
-			return nil, fmt.Errorf("invalid ProviderMeta value: %w", err)
-		}
-	}
-
 	protoReq := &tfplugin5.PlanResourceChange_Request{
 		TypeName:           req.ResourceType,
 		PriorState:         priorState,
 		ProposedNewState:   proposedNewState,
 		Config:             config,
 		PriorPrivate:       req.PriorProviderInternal,
-		ProviderMeta:       providerMeta,
+		ProviderMeta:       providerMetaStubValue,
 		ClientCapabilities: prepareClientCapabilities(req.ClientCapabilities),
 	}
 
@@ -118,19 +102,11 @@ func (p *Provider) ReadManagedResource(ctx context.Context, req *providerops.Rea
 		return nil, fmt.Errorf("invalid CurrentState value: %w", err)
 	}
 
-	var providerMeta *tfplugin5.DynamicValue
-	if req.ProviderMeta != providerschema.NoDynamicValue {
-		providerMeta, err = makeDynamicValueMsgpack(req.ProviderMeta)
-		if err != nil {
-			return nil, fmt.Errorf("invalid ProviderMeta value: %w", err)
-		}
-	}
-
 	protoReq := &tfplugin5.ReadResource_Request{
 		TypeName:           req.ResourceType,
 		CurrentState:       currentState,
 		Private:            req.ProviderInternal,
-		ProviderMeta:       providerMeta,
+		ProviderMeta:       providerMetaStubValue,
 		ClientCapabilities: prepareClientCapabilities(req.ClientCapabilities),
 	}
 

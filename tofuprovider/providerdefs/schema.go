@@ -181,17 +181,6 @@ func (p ProviderSchema) ProviderConfigSchema() providerschema.Schema {
 	return Schema{}
 }
 
-// ProviderMetaSchema implements [providerschema.ProviderSchema] by returning
-// nil to indicate that this provider doesn't support "provider meta" at all.
-//
-// (Most providers should not implement this, because "provider meta" is a niche
-// feature that only serves the very narrow case of a module being written by
-// the same author as the main provider it uses and using that provider as a
-// way to collect usage data for the module.)
-func (p ProviderSchema) ProviderMetaSchema() providerschema.Schema {
-	return nil
-}
-
 // FunctionSignature is a base implementation of [providerschema.FunctionSignature].
 //
 // External implementers must still provide their own implementation of
