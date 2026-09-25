@@ -64,3 +64,15 @@ type PluginClient struct{}
 func (c PluginClient) ClientProxy(ctx context.Context, conn *grpc.ClientConn) (any, error) {
 	return tfplugin6.NewProviderClient(conn), nil
 }
+
+// providerMetaStubValue is the value we unconditionally place in the various
+// "ProviderMeta" fields in the underlying protocol, which describes a null
+// value meaning that provider metadata is not specified at all.
+//
+// This is a feature of the Terraform-team-managed protocol that OpenTofu
+// intentionally does not include in its abstract provider protocol because it
+// is used only for module authors to collaborate with provider authors to
+// covertly track usage of their modules.
+var providerMetaStubValue = &tfplugin6.DynamicValue{
+	Msgpack: []byte{0xc0},
+}

@@ -51,16 +51,6 @@ type ProviderSchema interface {
 	// one function.
 	FunctionSignatures() iter.Seq2[string, FunctionSignature]
 
-	// ProviderMetaSchema returns the schema used for the rarely-used
-	// "provider_meta" block type in the OpenTofu language, which allows
-	// a module author to send module-related metadata with many different
-	// provider requests related to objects in their module.
-	//
-	// Most callers should disregard this method. "Provider meta" is not
-	// a widely-used provider protocol feature, and its corresponding
-	// OpenTofu language features are not widely known in the community.
-	ProviderMetaSchema() Schema
-
 	// ManagedResourceTypeListSchemas returns an iterator over the managed
 	// resource type names that support the ListManagedResources operation and
 	// the schema to use for each one.

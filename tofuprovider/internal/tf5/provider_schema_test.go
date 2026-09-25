@@ -37,9 +37,6 @@ func TestGetProviderSchema(t *testing.T) {
 					if got := schema.ProviderConfigSchema(); got != nil {
 						t.Errorf("unexpected provider config schema: %#v", got)
 					}
-					if got := schema.ProviderMetaSchema(); got != nil {
-						t.Errorf("unexpected provider meta schema: %#v", got)
-					}
 					checkEmptySeq2(t, "managed resource type", schema.ManagedResourceTypeSchemas())
 					checkEmptySeq2(t, "data resource type", schema.DataResourceTypeSchemas())
 					checkEmptySeq2(t, "ephemeral resource type", schema.EphemeralResourceTypeSchemas())
@@ -127,58 +124,6 @@ func TestGetProviderSchema(t *testing.T) {
 					attrS, ok := gotAttrs["url"]
 					if !ok {
 						t.Fatal("no attribute named 'url' in response")
-					}
-					if got, want := attrS.Usage(), providerschema.AttributeOptional; got != want {
-						t.Errorf("wrong attribute usage\ngot:  %s\nwant: %s", got, want)
-					}
-					ty, err := attrS.Type().AsCtyType()
-					if err != nil {
-						t.Fatalf("invalid attribute type: %s", err)
-					}
-					if got, want := ty, cty.String; got != want {
-						t.Errorf("wrong attribute type\ngot:  %#v\nwant: %#v", got, want)
-					}
-				},
-			},
-			"provider meta schema": {
-				Mock: func(expect *MockProviderClientMockRecorder) {
-					expect.GetSchema(
-						mockutil.AnyContext(),
-						mockutil.Eq(&tfplugin5.GetProviderSchema_Request{}),
-					).Return(
-						&tfplugin5.GetProviderSchema_Response{
-							// NOTE: This doesn't need to have comprehensive
-							// coverage of every possible part of schema because
-							// we have separate tests for the mapping from
-							// tfplugin5.Schema to the version-agnostic
-							// interfaces in provider_schema_impl_test.go. We're
-							// just checking whether resource types from the
-							// response make it into the return value at all.
-							ProviderMeta: &tfplugin5.Schema{
-								Block: &tfplugin5.Schema_Block{
-									Attributes: []*tfplugin5.Schema_Attribute{
-										{
-											Name:     "module_addr",
-											Type:     mockutil.JSON("string"),
-											Optional: true,
-										},
-									},
-								},
-							},
-						}, nil,
-					)
-				},
-				Request: &providerops.GetProviderSchemaRequest{},
-				Check: func(t *testing.T, resp providerops.GetProviderSchemaResponse) {
-					mockutil.AssertNoDiags(t, resp.Diagnostics())
-					schema := resp.ProviderSchema().ProviderMetaSchema()
-					if schema == nil {
-						t.Fatal("no provider meta schema was returned")
-					}
-					gotAttrs := maps.Collect(schema.Attributes())
-					attrS, ok := gotAttrs["module_addr"]
-					if !ok {
-						t.Fatal("no attribute named 'module_addr' in response")
 					}
 					if got, want := attrS.Usage(), providerschema.AttributeOptional; got != want {
 						t.Errorf("wrong attribute usage\ngot:  %s\nwant: %s", got, want)

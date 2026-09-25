@@ -27,13 +27,6 @@ type ReadManagedResourceRequest struct {
 	// the provider most recently returned, or behavior is unspecified.
 	ProviderInternal []byte
 
-	// ProviderMeta is some additional metadata declared in the module where
-	// this resource was declared. This is a rarely-used feature that most
-	// callers should ignore, leaving this field completely unassigned.
-	// When populated the value must be of the type implied by the provider's
-	// ProviderMetaSchema.
-	ProviderMeta providerschema.DynamicValueIn
-
 	// ClientCapabilities allows the caller to declare that it is capable of
 	// handling certain response data that was added to the protocol after
 	// it was initially defined, and thus which the provider must disable
